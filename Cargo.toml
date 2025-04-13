@@ -1,0 +1,33 @@
+[package]
+default-run = "finance-server"
+edition = "2021"
+name = "finance-server"
+version = "0.1.0"
+
+[dependencies]
+aes-gcm = "0.10.3"
+async-trait = "0.1.88"
+axum = {version = "0.8.1", features = ["macros"]}
+base64 = "0.22.1"
+chrono = {version = "0.4", features = ["serde"]}
+dotenvy = "0.15.7"
+jwt-simple = {version = "0.12.12", default-features = false, features = ["pure-rust"]}
+password-auth = "1.0.0"
+rand = "0.9.0"
+serde = {version = "1.0.219", features = ["derive"]}
+serde_json = "1.0.40"
+sqlx = {version = "0.8.3", features = ["postgres", "runtime-tokio-native-tls", "uuid", "chrono"]}
+tokio = {version = "1.44.1", features = ["full"]}
+tower-http = {version = "0.6.2", features = ["cors"]}
+
+[profile.dev.package.sqlx-macros]
+opt-level = 3
+
+[dependencies.uuid]
+features = [
+  "v4", # Lets you generate random UUIDs
+  "fast-rng", # Use a faster (but still sufficiently random) RNG
+  "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+  "serde",
+]
+version = "1.14.0"

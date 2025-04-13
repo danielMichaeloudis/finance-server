@@ -1,0 +1,31 @@
+use auth_routes::*;
+use axum::{
+    routing::{get, post},
+    Router,
+};
+mod auth_routes;
+mod data_routes;
+mod user_routes;
+use data_routes::*;
+use user_routes::*;
+
+use crate::AppState;
+
+pub(crate) fn rest_router() -> Router<AppState> {
+    Router::new()
+        .route(
+            "/transactions",
+            get(route_get_all_transactions).post(route_add_transaction),
+        )
+        .route("/signup", post(route_signup))
+        .route("/login", post(route_login))
+        .route("/has_family", get(route_get_has_family))
+        .route("/test_token", get(route_test_token))
+        .route("/vendors", get(route_get_vendors_data))
+        .route("/total_spent", get(route_get_total_spent))
+        .route("/join_family", post(route_join_family))
+        .route("/create_family", get(route_create_family))
+        .route("/get_family_join_code", get(route_get_family_join_code))
+        .route("/goals", get(route_get_goals).post(route_set_goal))
+        .route("/transactions_many", post(route_add_many_transactions))
+}
