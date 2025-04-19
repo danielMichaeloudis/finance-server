@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "--sql\n            insert into families (join_code_prefix, join_code, encryption_key) \n            values ($1, $2, $3)\n            returning family_uuid\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "family_uuid",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Bytea",
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "ef1c807969f00c8ff1be3d74346accd46f06fa6715fe2fbc7805568c227d6c3d"
+}

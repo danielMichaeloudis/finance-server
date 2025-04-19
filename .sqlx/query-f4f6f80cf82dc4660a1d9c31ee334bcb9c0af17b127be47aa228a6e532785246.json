@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "--sql\n                SELECT f.join_code, f.family_uuid\n                FROM families f\n                WHERE f.family_uuid = (\n                    SELECT family_uuid\n                    FROM link_users_families\n                    WHERE user_uuid = $1\n                    LIMIT 1\n        );",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "join_code",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 1,
+        "name": "family_uuid",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "f4f6f80cf82dc4660a1d9c31ee334bcb9c0af17b127be47aa228a6e532785246"
+}

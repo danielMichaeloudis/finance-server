@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "--sql\n            insert into link_users_families (user_uuid, family_uuid) values ($1, $2)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "82f99a42a09716b0e409043a0f9f25106f6d7f6ac772914da58beaadb0bdfc86"
+}

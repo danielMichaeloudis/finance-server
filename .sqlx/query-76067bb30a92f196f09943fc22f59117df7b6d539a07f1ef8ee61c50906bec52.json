@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "--sql\n            insert into users (username, password_hash, email, encryption_key)\n            values ($1, $2, $3, $4)\n            returning user_uuid \n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_uuid",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "76067bb30a92f196f09943fc22f59117df7b6d539a07f1ef8ee61c50906bec52"
+}

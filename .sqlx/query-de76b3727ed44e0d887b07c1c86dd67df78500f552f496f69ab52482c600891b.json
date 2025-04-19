@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "--sql\n        delete from user_data where\n        uuid = $1 and user_uuid = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "de76b3727ed44e0d887b07c1c86dd67df78500f552f496f69ab52482c600891b"
+}

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "--sql\n            select encryption_key from users where user_uuid = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "encryption_key",
+        "type_info": "Bytea"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "65ee14d905662a6c98c2f643bd2b6e68cd439b835ee163e901aa4826f7e7ea33"
+}
