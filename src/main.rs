@@ -11,16 +11,20 @@ use axum::{
 };
 use routes::rest_router;
 use serde::Serialize;
-use sqlx::postgres::PgPoolOptions;
+use sqlx::{migrate::Migrator, postgres::PgPoolOptions};
 use utils::AppState;
 
-#[tokio::main] // Allows main to be async
+static MIGRATOR: Migrator = sqlx::migrate!();
+
+#[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
 
     let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let jwt_base64 = std::env::var("JWT_SECRET_KEY").expect("JWT_SECRET_KEY must be set");
     let pool = PgPoolOptions::new().connect(&db_url).await?;
+
+    MIGRATOR.run(&pool).await?;
 
     let app = Router::new()
         .route("/ping", get(ping))

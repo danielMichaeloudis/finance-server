@@ -30,7 +30,7 @@ create table
         uuid uuid primary key default gen_random_uuid (),
         family_uuid uuid not null,
         encrypted_data bytea not null,
-        transaction_time timestamp not null default now (),
+        data_time timestamp not null default now (),
         CONSTRAINT fk_family FOREIGN KEY (family_uuid) REFERENCES families (family_uuid) ON DELETE CASCADE
     );
 
@@ -39,6 +39,6 @@ create table
         uuid uuid primary key default gen_random_uuid (),
         user_uuid uuid not null,
         encrypted_data bytea not null,
-        transaction_time timestamp not null default now (),
+        data_time timestamp not null default now (),
         CONSTRAINT fk_user FOREIGN KEY (user_uuid) REFERENCES users (user_uuid) ON DELETE CASCADE
     );

@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+    rust-server:
+        build: .
+        container_name: rust-server
+        ports:
+            - "3000:3000"
+        environment:
+            - DATABASE_URL=postgres://serverUser:password@postgres:5432/Finance
+        depends_on:
+            - postgres
+
+    postgres:
+        image: postgres:15
+        container_name: postgres
+        restart: always
+        environment:
+            POSTGRES_USER: serverUser
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: Finance
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+
+volumes:
+    postgres-data:

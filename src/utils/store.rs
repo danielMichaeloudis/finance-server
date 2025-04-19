@@ -50,7 +50,7 @@ impl Store {
         query_as!(
             EncryptedDataReturn,
             r#"--sql
-            select uuid, user_uuid "owner_uuid", encrypted_data, transaction_time from public.user_data where user_uuid = $1
+            select uuid, user_uuid "owner_uuid", encrypted_data, data_time from public.user_data where user_uuid = $1
         "#, user_uuid
         )
         .fetch_all(&self.pool)
@@ -64,7 +64,7 @@ impl Store {
         query_as!(
             EncryptedDataReturn,
             r#"--sql
-            select uuid, family_uuid "owner_uuid", encrypted_data, transaction_time from public.family_data where family_uuid = $1
+            select uuid, family_uuid "owner_uuid", encrypted_data, data_time from public.family_data where family_uuid = $1
         "#, family_uuid
         )
         .fetch_all(&self.pool)
@@ -79,7 +79,7 @@ impl Store {
         let time = Utc::now().naive_utc();
         let res = query_scalar!(
             r#"--sql
-                insert into user_data (user_uuid, encrypted_data, transaction_time) 
+                insert into user_data (user_uuid, encrypted_data, data_time) 
                 values ($1, $2, $3)
                 returning user_uuid
             
@@ -101,7 +101,7 @@ impl Store {
         let time = Utc::now().naive_utc();
         let res = query_scalar!(
             r#"--sql
-                insert into family_data (family_uuid, encrypted_data, transaction_time) 
+                insert into family_data (family_uuid, encrypted_data, data_time) 
                 values ($1, $2, $3)
                 returning family_uuid
             

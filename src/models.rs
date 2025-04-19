@@ -26,7 +26,7 @@ pub(crate) struct EncryptedDataReturn {
     pub uuid: Option<Uuid>,
     pub owner_uuid: Uuid,
     pub encrypted_data: Vec<u8>,
-    pub transaction_time: Option<NaiveDateTime>,
+    pub data_time: Option<NaiveDateTime>,
 }
 
 #[derive(Serialize, Clone, Deserialize)]
@@ -34,7 +34,7 @@ pub(crate) struct EncryptedFamilyDataReturn {
     pub uuid: Option<Uuid>,
     pub family_uuid: Uuid,
     pub encrypted_data: Option<Vec<u8>>,
-    pub transaction_time: Option<NaiveDateTime>,
+    pub data_time: Option<NaiveDateTime>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

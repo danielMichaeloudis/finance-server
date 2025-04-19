@@ -38,7 +38,7 @@ pub async fn process_transaction_list(
         decrypted_transaction.transaction_timestamp =
             match decrypted_transaction.transaction_timestamp {
                 Some(t) => Some(t),
-                None => transaction.transaction_time,
+                None => transaction.data_time,
             };
         decrypted_transactions.push(decrypted_transaction);
     }
