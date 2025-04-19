@@ -4,7 +4,7 @@ FROM rust:latest AS builder
 WORKDIR /app
 
 COPY Cargo.toml Cargo.lock ./
-RUN cargo build --release
+RUN cargo build --release || true
 RUN rm -rf src
 
 COPY . .
@@ -15,5 +15,6 @@ FROM debian:bookworm-slim
 
 WORKDIR /app
 COPY --from=builder /app/target/release/finance-server .
+COPY migrations ./migrations
 
 CMD ["./finance-server"]
