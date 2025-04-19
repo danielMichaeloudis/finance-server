@@ -1,6 +1,8 @@
 mod models;
 mod routes;
 mod utils;
+use std::time::Duration;
+
 use axum::{
     http::{
         header::{AUTHORIZATION, CONTENT_TYPE},
@@ -22,7 +24,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let jwt_base64 = std::env::var("JWT_SECRET_KEY").expect("JWT_SECRET_KEY must be set");
-    let pool = PgPoolOptions::new().connect(&db_url).await?;
+    let pool = loop {
+        match PgPoolOptions::new().connect(&db_url).await {
+            Ok(pool) => break pool,
+            Err(e) => {
+                eprintln!("Waiting For Database: {}", e);
+                tokio::time::sleep(Duration::from_secs(2)).await;
+            }
+        }
+    };
 
     MIGRATOR.run(&pool).await?;
 

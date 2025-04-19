@@ -4,7 +4,9 @@ FROM rust:latest AS builder
 WORKDIR /app
 
 COPY Cargo.toml Cargo.lock ./
-RUN cargo build --release || true
+
+#For caching dependancies 
+RUN cargo build --release || true 
 RUN rm -rf src
 
 COPY . .
