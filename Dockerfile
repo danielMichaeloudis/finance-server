@@ -10,6 +10,7 @@ RUN cargo build --release || true
 RUN rm -rf src
 
 COPY . .
+COPY .sqlx .sqlx
 
 RUN cargo build --release
 
