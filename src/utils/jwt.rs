@@ -18,3 +18,9 @@ impl JWTKeyProvider {
         }
     }
 }
+
+pub fn get_jwt_provider() -> JWTKeyProvider {
+    dotenvy::dotenv().ok();
+    let jwt_base64 = std::env::var("JWT_SECRET_KEY").expect("JWT_SECRET_KEY must be set");
+    JWTKeyProvider::new(&jwt_base64)
+}

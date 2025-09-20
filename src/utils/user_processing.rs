@@ -46,7 +46,8 @@ pub async fn create_family(
         .collect();
     let join_code_prefix = family_join_code
         .get(0..4)
-        .ok_or(internal_server_error("Failed to creat join code prefix"))?;
+        .ok_or("Failed to create join code prefix")
+        .map_err(internal_server_error)?;
     let encryption_key = get_new_raw_key().await;
     let join_code_encrypted =
         encrypt(&encryption_key, family_join_code.as_bytes()).map_err(internal_server_error)?;

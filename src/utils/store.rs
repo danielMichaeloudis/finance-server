@@ -1,6 +1,6 @@
 use axum::http::StatusCode;
 use chrono::Utc;
-use sqlx::{query, query_as, query_scalar, types::Uuid, PgPool};
+use sqlx::{postgres::PgPoolOptions, query, query_as, query_scalar, types::Uuid, PgPool};
 
 use crate::models::EncryptedDataReturn;
 
@@ -8,6 +8,12 @@ use super::{
     encryption::{decrypt_string, get_new_encrypted_key},
     internal_server_error,
 };
+
+pub async fn get_store() -> Result<Store, sqlx::Error> {
+    dotenvy::dotenv().ok();
+    let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    Ok(Store::new(PgPoolOptions::new().connect(&db_url).await?))
+}
 
 #[derive(Clone)]
 pub(crate) struct Store {

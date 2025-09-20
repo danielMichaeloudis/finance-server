@@ -1,21 +1,24 @@
-
+# --- Build Stage ---
 FROM rust:latest AS builder
 
 WORKDIR /app
 
-COPY Cargo.toml Cargo.lock ./
+RUN rustup component add rustfmt clippy
 
-#For caching dependancies 
-RUN cargo build --release || true 
-RUN rm -rf src
+#COPY Cargo.toml Cargo.lock ./
+
+#RUN mkdir src && echo "fn main() {}" > src/main.rs
+#RUN cargo build --release
+#RUN rm -rf src
 
 COPY . .
 COPY .sqlx .sqlx
 
-RUN cargo build --release
+ENV SQLX_OFFLINE=true
+
+RUN cargo build --release --verbose
 
 FROM debian:bookworm-slim
-
 
 RUN apt-get update && apt-get install -y \
     ca-certificates \
@@ -23,7 +26,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY --from=builder /app/target/release/finance-server .
+COPY --from=builder /app/target/release ./target/release
 COPY migrations ./migrations
+COPY .env .env
 
-CMD ["./finance-server"]
+CMD ["./target/release/finance-server"]

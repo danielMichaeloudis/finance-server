@@ -1,10 +1,12 @@
+use std::net::Incoming;
+
 use crate::{
     models::{CachedData, EncryptedDataReturn, Goal, Transaction, VendorData},
     utils::encrypt_data,
 };
 
 use super::{encryption::decrypt_data, internal_server_error, store::Store};
-use axum::http::StatusCode;
+use axum::{http::StatusCode, Json};
 use chrono::{NaiveDateTime, Utc};
 use serde_json::{json, Value};
 use uuid::Uuid;
@@ -341,6 +343,22 @@ pub async fn process_vendor_data(
         }
     }
     Ok(vendor_data)
+}
+
+pub async fn get_total_in_out(
+    store: &Store,
+    user_uuid: &Uuid,
+) -> Result<Value, (StatusCode, String)> {
+    let transactions = get_all_transactions(store, user_uuid).await?;
+    let incomming = transactions
+        .iter()
+        .fold(0.0, |acc, t| if t.cost > 0.0 { acc + t.cost } else { acc });
+    let outgoing = transactions
+        .iter()
+        .fold(0.0, |acc, t| if t.cost < 0.0 { acc - t.cost } else { acc });
+    let total = incomming - outgoing;
+    let res = json!({"total": total, "incomming": incomming, "outgoing": outgoing});
+    Ok(res)
 }
 
 pub async fn get_total_spent(store: &Store, user_uuid: &Uuid) -> Result<f64, (StatusCode, String)> {

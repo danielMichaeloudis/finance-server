@@ -5,7 +5,7 @@ use super::{jwt::JWTKeyProvider, store::Store};
 
 #[derive(Clone, FromRef)]
 pub(crate) struct AppState {
-    store: Store,
+    pub store: Store,
     pub jwt_key_provider: JWTKeyProvider,
 }
 

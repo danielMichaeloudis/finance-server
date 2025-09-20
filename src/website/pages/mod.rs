@@ -1,0 +1,180 @@
+mod home;
+mod login;
+mod signup;
+mod table;
+
+pub use home::home_page;
+pub use login::login_page;
+use maud::{html, Markup, DOCTYPE};
+pub use signup::signup_page;
+pub use table::table_page;
+
+use crate::website::components::navigation_bar;
+use css_helper::{Colour, Css, Theme, ThemeValue};
+
+pub fn authorised_page(content: Markup) -> Markup {
+    let wrapped = html! {
+        (authorised_page_css())
+        script src="/utils.js" defer {};
+        script src="/authorsied_page_header.js" defer {};
+        #header ."bg-1" {
+            h1 {"Total Spent: " h1 #total {}} br;
+            h1 {"Total In: " h1 #incomming {}} br;
+            h1 {"Total Out: " h1 #outgoing {}} br;
+        }
+        (navigation_bar())
+        (content)
+    };
+    page(wrapped)
+}
+
+pub fn page(content: Markup) -> Markup {
+    html! {
+        (DOCTYPE)
+        (page_css())
+        body {(content)}
+    }
+}
+
+fn page_css() -> Css {
+    Css::from((
+        r#" 
+        body {
+            background-color: #1e1e1e;
+            margin: 0;
+            font-family: 'Roboto', 'Helvetica', 'Arial', 'sans-serif';
+        }
+        .bg-1 {
+            background-color: {bg-1-colour};
+            color: {white};
+            margin: 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px;
+        }
+        
+
+        .styled-input {
+            align-items: center;
+            width: 100%;
+            position: relative;
+            margin: 0.5rem;
+            color: #c2c2c2;
+            background-color: #333333; 
+            height: 2.5rem;
+            border-radius: 4px;    
+            border-style: solid;
+            border-width: 1px;
+            border-color: rgba(255, 255, 255, 0.23);
+        }
+
+        .styled-button {
+            background-color: rgb(144, 202, 249);
+            color: rgba(0, 0, 0, 0.87);
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.4s ease;
+        }
+
+        .styled-button:hover {
+            background-color: rgb(66 165 245);
+        }
+
+    "#,
+        main_theme(),
+    ))
+}
+
+pub fn main_theme() -> Theme {
+    let mut t = Theme::new();
+    t.insert(
+        "white".to_string(),
+        ThemeValue::Colour(Colour::from("#ffffff")),
+    );
+    t.insert(
+        "error-colour".to_string(),
+        ThemeValue::Colour(Colour::from("#f4c7c7")),
+    );
+    t.insert(
+        "error-bg-colour".to_string(),
+        ThemeValue::Colour(Colour::from("#160b0b")),
+    );
+    t.insert(
+        "bg-1-colour".to_string(),
+        ThemeValue::Colour(Colour::from("#272727")),
+    );
+    t
+}
+
+pub fn login_signup_css() -> Css {
+    Css::from(
+        r#"
+#page {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+#login-signup-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    width: 400px;
+    height: 450px;
+    padding: 2rem;
+}
+
+a {
+    color: #6200ea;
+    text-decoration: none;
+                        
+}
+a:hover { 
+    text-decoration: underline;
+}
+"#,
+    )
+}
+
+fn error_box_css() -> Css {
+    Css::from((
+        r#"
+    #error {
+        background-color: {error-bg-colour};
+        color: {error-colour};
+        display: none; /* Default to not shown */
+        width: 100%;
+        height: 2.5rem;
+        line-height: 2.5rem;
+        text-align: center;
+        border-radius: 4px;
+        margin: 0.5rem;
+    }
+"#,
+        main_theme(),
+    ))
+}
+
+fn authorised_page_css() -> Css {
+    Css::from((
+        r#"
+        #header {
+            padding: 1rem;
+        }
+        #incomming {
+            color:rgb(0, 112, 0);
+        }
+        #outgoing {
+            color: rgb(112,0,0);
+        }
+        h1 {
+            display: inline;
+        }
+    "#,
+        main_theme(),
+    ))
+}

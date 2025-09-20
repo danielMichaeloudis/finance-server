@@ -1,0 +1,14 @@
+[package]
+edition = "2024"
+name = "css_macro"
+version = "0.1.0"
+
+[dependencies]
+css_helper = {path = "../css_helper"}
+maud = "0.27.0"
+proc-macro2 = "1.0.95"
+quote = "1.0.40"
+syn = "2.0.104"
+
+[lib]
+proc-macro = true

@@ -8,6 +8,13 @@ pub struct LoginInfo {
     pub username: String,
     pub password: String,
 }
+
+#[derive(Deserialize)]
+pub struct NewPassword {
+    pub old_password: String,
+    pub new_password: String,
+}
+
 #[derive(Deserialize)]
 pub struct SignupInfo {
     pub username: String,
@@ -37,14 +44,14 @@ pub(crate) struct EncryptedFamilyDataReturn {
     pub data_time: Option<NaiveDateTime>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Item {
     pub name: String,
     pub price: f64,
     pub bought_for: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Transaction {
     pub input_for_family: Option<bool>,
     pub vendor: String,

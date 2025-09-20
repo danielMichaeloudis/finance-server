@@ -5,7 +5,7 @@ use axum::{
 };
 
 use crate::{
-    models::{LoginInfo, SignupInfo},
+    models::{LoginInfo, NewPassword, SignupInfo},
     utils::{get_uuid_from_token, internal_server_error, JWTKeyProvider, Store},
 };
 
@@ -108,4 +108,11 @@ pub async fn route_login(
             "Failed to sign token".to_string(),
         )),
     }
+}
+
+pub async fn reset_password(
+    State(store): State<Store>,
+    State(jwt_key_provider): State<JWTKeyProvider>,
+    Json(passwords): Json<NewPassword>,
+) {
 }

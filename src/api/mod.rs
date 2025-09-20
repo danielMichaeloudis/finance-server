@@ -1,4 +1,4 @@
-use auth_routes::*;
+pub use auth_routes::*;
 use axum::{
     routing::{get, post},
     Router,
@@ -6,12 +6,12 @@ use axum::{
 mod auth_routes;
 mod data_routes;
 mod user_routes;
-use data_routes::*;
-use user_routes::*;
+pub use data_routes::*;
+pub use user_routes::*;
 
 use crate::AppState;
 
-pub(crate) fn rest_router() -> Router<AppState> {
+pub(crate) fn api_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/transactions",
@@ -23,6 +23,7 @@ pub(crate) fn rest_router() -> Router<AppState> {
         .route("/test_token", get(route_test_token))
         .route("/vendors", get(route_get_vendors_data))
         .route("/total_spent", get(route_get_total_spent))
+        .route("/total_in_out", get(route_get_total_in_out))
         .route("/join_family", post(route_join_family))
         .route("/create_family", get(route_create_family))
         .route("/get_family_join_code", get(route_get_family_join_code))

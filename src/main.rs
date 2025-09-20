@@ -1,8 +1,10 @@
+mod api;
+mod api_bridge;
 mod models;
-mod routes;
 mod utils;
-use std::time::Duration;
+mod website;
 
+use api::api_routes;
 use axum::{
     http::{
         header::{AUTHORIZATION, CONTENT_TYPE},
@@ -11,10 +13,12 @@ use axum::{
     routing::get,
     Json, Router,
 };
-use routes::rest_router;
 use serde::Serialize;
-use sqlx::{migrate::Migrator, postgres::PgPoolOptions};
+use sqlx::{migrate::Migrator, postgres::PgPoolOptions, Connection, PgConnection, Pool, Postgres};
 use utils::AppState;
+use website::website_routes;
+
+use crate::{api_bridge::ApiBridge, website::js_routes};
 
 static MIGRATOR: Migrator = sqlx::migrate!();
 
@@ -24,21 +28,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let jwt_base64 = std::env::var("JWT_SECRET_KEY").expect("JWT_SECRET_KEY must be set");
-    let pool = loop {
-        match PgPoolOptions::new().connect(&db_url).await {
-            Ok(pool) => break pool,
-            Err(e) => {
-                eprintln!("Waiting For Database: {}", e);
-                tokio::time::sleep(Duration::from_secs(2)).await;
-            }
-        }
-    };
+    let pool = create_and_setup_db(&db_url).await?;
 
-    MIGRATOR.run(&pool).await?;
-
-    let app = Router::new()
+    let router = Router::new()
         .route("/ping", get(ping))
-        .nest("/api", rest_router())
+        .nest("/api", api_routes())
+        .merge(website_routes())
+        .merge(js_routes())
         .layer(
             tower_http::cors::CorsLayer::new()
                 .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
@@ -51,10 +47,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Server started. Listening on {addr}");
 
-    axum::serve(listener, app.into_make_service())
+    axum::serve(listener, router.into_make_service())
         .await
         .expect("Failed to start server");
     Ok(())
+}
+
+async fn create_and_setup_db(db_url: &str) -> Result<Pool<Postgres>, sqlx::Error> {
+    let mut url = url::Url::parse(db_url).unwrap();
+    let db_name = url.path().trim_start_matches('/').to_string();
+    url.set_path("/postgres");
+    let postgres_url = url.as_str();
+
+    let mut conn = PgConnection::connect(postgres_url).await?;
+
+    let db_exists = sqlx::query_scalar::<_, bool>(
+        "SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1)",
+    )
+    .bind(&db_name)
+    .fetch_one(&mut conn)
+    .await?;
+
+    if !db_exists {
+        let create_db_query = format!("CREATE DATABASE \"{}\";", db_name);
+        sqlx::query(&create_db_query).execute(&mut conn).await?;
+        println!("Database '{}' created!", db_name);
+    } else {
+        println!("Database '{}' already exists.", db_name);
+    }
+    let pool = PgPoolOptions::new().connect(db_url).await?;
+    MIGRATOR.run(&pool).await?;
+    Ok(pool)
 }
 
 #[derive(Serialize)]
