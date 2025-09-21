@@ -18,7 +18,7 @@ ENV SQLX_OFFLINE=true
 
 RUN cargo build --release --verbose
 
-FROM debian:bookworm-slim
+FROM debian:bookworm
 
 RUN echo "deb https://deb.debian.org/debian bookworm main" > /etc/apt/sources.list \
     && echo "deb https://deb.debian.org/debian-security bookworm-security main" >> /etc/apt/sources.list \
