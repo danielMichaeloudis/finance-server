@@ -28,6 +28,7 @@ WORKDIR /app
 COPY --from=builder /app/target/release ./target/release
 COPY migrations ./migrations
 COPY .env .env
+COPY /src/website/js ./src/website/js
 
 # Add wait-for-it
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
