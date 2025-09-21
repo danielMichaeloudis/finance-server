@@ -5,7 +5,7 @@ services:
         ports:
             - "3000:3000"
         environment:
-            - DATABASE_URL=postgres://serverUser:password@postgres:5432/Finance
+            - DATABASE_URL=postgres://serverUser:password@postgres:5432/Ledgerly
             - JWT_SECRET_KEY=02OnN46Yh6s9iDEXL23PfvH3qaZfywNeqib9Oe1b5pQ=
         depends_on:
             - postgres
@@ -17,7 +17,7 @@ services:
         environment:
             POSTGRES_USER: serverUser
             POSTGRES_PASSWORD: password
-            POSTGRES_DB: Finance
+            POSTGRES_DB: Ledgerly
         ports:
             - "5432:5432"
         volumes:

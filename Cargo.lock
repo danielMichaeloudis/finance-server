@@ -615,31 +615,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "finance-server"
-version = "0.1.1"
-dependencies = [
- "aes-gcm",
- "async-trait",
- "axum",
- "base64",
- "chrono",
- "css_helper",
- "css_macro",
- "dotenvy",
- "jwt-simple",
- "maud",
- "password-auth",
- "rand 0.9.2",
- "serde",
- "serde_json",
- "sqlx",
- "tokio",
- "tower-http",
- "url",
- "uuid",
-]
-
-[[package]]
 name = "flume"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1241,6 +1216,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 dependencies = [
  "spin",
+]
+
+[[package]]
+name = "ledgerly"
+version = "0.1.1"
+dependencies = [
+ "aes-gcm",
+ "async-trait",
+ "axum",
+ "base64",
+ "chrono",
+ "css_helper",
+ "css_macro",
+ "dotenvy",
+ "jwt-simple",
+ "maud",
+ "password-auth",
+ "rand 0.9.2",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tokio",
+ "tower-http",
+ "url",
+ "uuid",
 ]
 
 [[package]]
