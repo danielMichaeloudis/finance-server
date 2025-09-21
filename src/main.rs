@@ -37,12 +37,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(js_routes())
         .layer(
             tower_http::cors::CorsLayer::new()
-                .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+                //.allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
                 .allow_headers([CONTENT_TYPE, AUTHORIZATION])
                 .allow_methods(Method::GET),
         )
         .with_state(AppState::new(pool, &jwt_base64));
-    let addr = "127.0.0.1:3000";
+    let addr = "0.0.0.0:3000";
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
 
     println!("Server started. Listening on {addr}");
