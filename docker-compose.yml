@@ -3,7 +3,7 @@ services:
         build: .
         container_name: rust-server
         ports:
-            - "3030:3000"
+            - "3000:3000"
         environment:
             - DATABASE_URL=postgres://serverUser:password@postgres:5432/Finance
             - JWT_SECRET_KEY=02OnN46Yh6s9iDEXL23PfvH3qaZfywNeqib9Oe1b5pQ=
