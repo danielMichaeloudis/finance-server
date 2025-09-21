@@ -1,7 +1,7 @@
 services:
-    rust-server:
+    ledgerly:
         build: .
-        container_name: rust-server
+        container_name: ledgerly
         ports:
             - "3000:3000"
         environment:

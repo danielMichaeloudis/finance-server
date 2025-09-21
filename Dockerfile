@@ -5,14 +5,7 @@ WORKDIR /app
 
 RUN rustup component add rustfmt clippy
 
-#COPY Cargo.toml Cargo.lock ./
-
-#RUN mkdir src && echo "fn main() {}" > src/main.rs
-#RUN cargo build --release
-#RUN rm -rf src
-
-COPY . .
-COPY .sqlx .sqlx
+RUN git clone --depth=1 https://github.com/danielMichaeloudis/ledgerly.git . 
 
 ENV SQLX_OFFLINE=true
 
@@ -34,4 +27,4 @@ COPY /src/website/js ./src/website/js
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
-CMD ["/wait-for-it.sh", "postgres:5432", "--", "./target/release/finance-server"]
+CMD ["/wait-for-it.sh", "postgres:5432", "--", "./target/release/ledgerly"]

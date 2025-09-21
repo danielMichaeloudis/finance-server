@@ -87,6 +87,6 @@ struct PingRes {
 
 async fn ping() -> Result<Json<PingRes>, ()> {
     Ok(Json(PingRes {
-        server_name: "Finance Server".to_string(),
+        server_name: "ledgerly".to_string(),
     }))
 }
