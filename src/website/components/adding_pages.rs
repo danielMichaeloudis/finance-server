@@ -6,9 +6,9 @@ pub fn add_transaction() -> Markup {
         (add_single_transaction_css())
         script src="/items.js" defer{}
         script src="/submit_transaction.js" defer{}
-        div #"add-single-transaction" ."bg-1" {
+        div #"add-single-transaction" ."bg-1" popover {
             h1 {"New Transaction"}
-            button #"close-add-single-transaction" ."close-btn" {"X"}
+            button #"close-add-single-transaction" ."close-btn" popovertarget="add-single-transaction" popovertargetaction="hide" {"X"}
             form {
                 input #"add-single-vendor" name="vendor" ."styled-input" type="text" placeholder="Vendor *";
                 input #"add-single-buyer" name="buyer" ."styled-input" type="text" placeholder="Buyer *";
@@ -38,13 +38,6 @@ fn add_single_transaction_css() -> Css {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            transition: opacity 0.4s ease;
-            opacity: 0;
-        }
-
-        #add-single-transaction.shown {
-            opacity: 100%;
-            pointer-events: all;
         }
 
         #add-single-transaction * {
