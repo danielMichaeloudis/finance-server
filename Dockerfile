@@ -20,13 +20,6 @@ RUN cargo build --release --verbose
 
 FROM debian:bookworm
 
-RUN echo "deb https://deb.debian.org/debian bookworm main" > /etc/apt/sources.list \
-    && echo "deb https://deb.debian.org/debian-security bookworm-security main" >> /etc/apt/sources.list \
-    && echo "deb https://deb.debian.org/debian bookworm-updates main" >> /etc/apt/sources.list \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-    ca-certificates openssl \
-    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY --from=builder /app/target/release ./target/release
