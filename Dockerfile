@@ -29,4 +29,8 @@ COPY --from=builder /app/target/release ./target/release
 COPY migrations ./migrations
 COPY .env .env
 
-CMD ["./target/release/finance-server"]
+# Add wait-for-it
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+
+CMD ["/wait-for-it.sh", "postgres:5432", "--", "./target/release/finance-server"]
