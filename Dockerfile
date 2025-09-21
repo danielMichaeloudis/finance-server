@@ -20,7 +20,9 @@ RUN cargo build --release --verbose
 
 FROM debian:bookworm-slim
 
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list \
+RUN echo "deb https://deb.debian.org/debian bookworm main" > /etc/apt/sources.list \
+    && echo "deb https://deb.debian.org/debian-security bookworm-security main" >> /etc/apt/sources.list \
+    && echo "deb https://deb.debian.org/debian bookworm-updates main" >> /etc/apt/sources.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
     ca-certificates openssl \
