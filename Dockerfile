@@ -20,6 +20,9 @@ RUN cargo build --release --verbose
 
 FROM debian:bookworm
 
+RUN && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    libssl3
 
 WORKDIR /app
 COPY --from=builder /app/target/release ./target/release
