@@ -50,7 +50,6 @@ function addHTML(html, idToRemove = null) {
         }
 
         if (idToRemove != null) {
-            console.log("adding class");
             newScript.classList.add("added-by-" + idToRemove);
         }
         document.body.appendChild(newScript);
@@ -60,7 +59,6 @@ function addHTML(html, idToRemove = null) {
     scriptTags.forEach((el) => el.remove());
 
     if (idToRemove != null) {
-        console.log("adding class");
         temp.firstElementChild.classList.add("added-by-" + idToRemove);
     }
     document.body.appendChild(temp.firstElementChild);

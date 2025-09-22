@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -59,7 +59,7 @@ pub(crate) struct Transaction {
     pub cost: f64,
     pub tags: Vec<String>,
     pub items: Vec<Item>, //TODO needs timestamp
-    pub transaction_timestamp: Option<NaiveDateTime>,
+    pub date: Option<NaiveDate>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -67,7 +67,7 @@ pub(crate) struct CachedData {
     pub uuid: Option<Uuid>,
     pub name: String,
     pub value: Value,
-    pub created: NaiveDateTime,
+    pub created: NaiveDate,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

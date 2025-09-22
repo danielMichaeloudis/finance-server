@@ -46,7 +46,6 @@ filtersContainer.onclick = (event) => {
     const dropdown = container.querySelector(".dropdown");
 
     const isOpen = container.classList.toggle("open");
-    console.log(isOpen);
 
     if (isOpen) {
         dropdown.style.maxHeight = dropdown.scrollHeight + "px";
@@ -70,3 +69,6 @@ addBtn.onclick = (event) => {
 addContainer.onmouseleave = (event) => {
     event.currentTarget.classList.remove("open");
 };
+
+//default date picker to now
+document.getElementById("date").valueAsDate = new Date();

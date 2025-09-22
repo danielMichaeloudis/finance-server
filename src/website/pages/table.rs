@@ -61,15 +61,15 @@ pub async fn table_page(req: Request) -> Markup {
             let mut has_buyer = true;
             let mut has_bought_for = true;
 
-            if let Some(t_time) = t.transaction_timestamp {
+            if let Some(t_time) = t.date {
                 if let Some(start_date) = query_params.start {
-                    if t_time.date() < start_date {
+                    if t_time < start_date {
                         within_date_rng = false;
                     }
                 }
 
                 if let Some(end_date) = query_params.end {
-                    if t_time.date() > end_date {
+                    if t_time > end_date {
                         within_date_rng = false;
                     }
                 }
@@ -232,8 +232,8 @@ fn get_days_data(transactions: &[Transaction]) -> Vec<(NaiveDate, VecDeque<Trans
     let mut t = transactions.iter().fold(
         vec![],
         |mut acc: Vec<(NaiveDate, VecDeque<Transaction>)>, transaction| {
-            let date = match transaction.transaction_timestamp {
-                Some(d) => d.date(),
+            let date = match transaction.date {
+                Some(d) => d,
                 None => return acc,
             };
             let date_entry = acc.iter_mut().find(|e| e.0 == date);

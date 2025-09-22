@@ -1,13 +1,11 @@
-use std::net::Incoming;
-
 use crate::{
     models::{CachedData, EncryptedDataReturn, Goal, Transaction, VendorData},
     utils::encrypt_data,
 };
 
 use super::{encryption::decrypt_data, internal_server_error, store::Store};
-use axum::{http::StatusCode, Json};
-use chrono::{NaiveDateTime, Utc};
+use axum::http::StatusCode;
+use chrono::{NaiveDate, Utc};
 use serde_json::{json, Value};
 use uuid::Uuid;
 
@@ -37,11 +35,10 @@ pub async fn process_transaction_list(
             None => continue,
             Some(v) => v,
         };
-        decrypted_transaction.transaction_timestamp =
-            match decrypted_transaction.transaction_timestamp {
-                Some(t) => Some(t),
-                None => transaction.data_time,
-            };
+        decrypted_transaction.date = match decrypted_transaction.date {
+            Some(t) => Some(t),
+            None => transaction.data_time.map(|d| d.date()),
+        };
         decrypted_transactions.push(decrypted_transaction);
     }
     Ok(decrypted_transactions)
@@ -376,7 +373,7 @@ pub async fn get_total_spent(store: &Store, user_uuid: &Uuid) -> Result<f64, (St
 pub async fn get_user_spent(store: &Store, user_uuid: &Uuid) -> Result<f64, (StatusCode, String)> {
     let cache = get_user_cache(store, user_uuid).await?;
     let mut cached_total: f64 = 0.0;
-    let mut cached_timestamp = NaiveDateTime::MIN;
+    let mut cached_timestamp = NaiveDate::MIN;
     let mut cached_uuid: Option<Uuid> = None;
     for cached_value in cache {
         if cached_value.name == "total" {
@@ -395,7 +392,7 @@ pub async fn get_user_spent(store: &Store, user_uuid: &Uuid) -> Result<f64, (Sta
     let transactions = get_user_transactions(store, user_uuid).await?;
     let transactions = transactions
         .into_iter()
-        .filter(|t| t.transaction_timestamp.unwrap_or(NaiveDateTime::MAX) > cached_timestamp)
+        .filter(|t| t.date.unwrap_or(NaiveDate::MAX) > cached_timestamp)
         .collect::<Vec<_>>();
 
     let sum = transactions
@@ -420,7 +417,7 @@ pub async fn get_family_spent(
 ) -> Result<f64, (StatusCode, String)> {
     let cache = get_family_cache(store, family_uuid).await?;
     let mut cached_total: f64 = 0.0;
-    let mut cached_timestamp = NaiveDateTime::MIN;
+    let mut cached_timestamp = NaiveDate::MIN;
     let mut cached_uuid: Option<Uuid> = None;
     for cached_value in cache {
         if cached_value.name == "total" {
@@ -438,7 +435,7 @@ pub async fn get_family_spent(
     let transactions = get_family_transactions(store, family_uuid).await?;
     let transactions = transactions
         .into_iter()
-        .filter(|t| t.transaction_timestamp.unwrap_or(NaiveDateTime::MAX) > cached_timestamp)
+        .filter(|t| t.date.unwrap_or(NaiveDate::MAX) > cached_timestamp)
         .collect::<Vec<_>>();
 
     let sum = transactions

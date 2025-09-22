@@ -1,16 +1,18 @@
 document.getElementById("submit-add-single").onclick = () => {
+    const vendor = document.getElementById("vendor");
+    const buyer = document.getElementById("buyer");
+    const cost = document.getElementById("cost");
+    const tags = document.getElementById("tags");
+    const dat = document.getElementById("date");
+
     let transaction = {};
-    transaction["vendor"] = document.getElementById("add-single-vendor").value;
-    transaction["buyer"] = document.getElementById("add-single-buyer").value;
-    transaction["cost"] = parseFloat(
-        document.getElementById("add-single-cost").value
-    );
-    transaction["tags"] = document
-        .getElementById("add-single-tags")
-        .value.split(",")
-        .map((t) => {
-            return t.trim();
-        });
+    transaction["vendor"] = vendor.value;
+    transaction["buyer"] = buyer.value;
+    transaction["cost"] = parseFloat(cost.value);
+    transaction["tags"] = tags.value.split(",").map((t) => {
+        return t.trim();
+    });
+    transaction["date"] = date.value;
 
     const rows = document.querySelectorAll("#items .item-row");
     const items = [];
@@ -37,6 +39,9 @@ document.getElementById("submit-add-single").onclick = () => {
         },
     }).then(
         (res) => {
+            document.getElementById("transaction-form").reset();
+            const itemsDiv = document.getElementById("items");
+            itemsDiv.innerHTML = "";
             location.reload();
         },
         (res) => {
@@ -44,5 +49,3 @@ document.getElementById("submit-add-single").onclick = () => {
         }
     );
 };
-console.log("HTML inserted");
-console.log(document.getElementById("add-single-transaction"));

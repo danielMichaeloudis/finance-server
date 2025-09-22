@@ -20,12 +20,13 @@ pub fn transaction_popup(
         (js_with_submit)
         div #"transaction" ."bg-1" {
             h1 {(title)}
-            button #"close-add-single-transaction" ."close-btn" popovertarget=[popover_target] popovertargetaction="hide" {"X"}
-            form {
-                input #"add-single-vendor" name="vendor" ."styled-input" type="text" placeholder="Vendor *";
-                input #"add-single-buyer" name="buyer" ."styled-input" type="text" placeholder="Buyer *";
-                input #"add-single-cost" name="cost" ."styled-input" type="number" placeholder="Cost *";
-                input #"add-single-tags" name="tags" ."styled-input" type="text" placeholder="Tags *";
+            button #"close-transaction" ."close-btn" popovertarget=[popover_target] popovertargetaction="hide" {"X"}
+            form #"transaction-form" {
+                input #"vendor" name="vendor" ."styled-input" type="text" placeholder="Vendor *";
+                input #"buyer" name="buyer" ."styled-input" type="text" placeholder="Buyer *";
+                input #"cost" name="cost" ."styled-input" type="number" placeholder="Cost *";
+                input #"tags" name="tags" ."styled-input" type="text" placeholder="Tags *";
+                input #"date" name="date" ."styled-input" type="date" placeholder="Date *";
                 h3 {"Items"}
                 div #"items" {}
                 button #"add-item" ."styled-button" type="button" {"Add Item"}

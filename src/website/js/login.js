@@ -3,9 +3,7 @@ let inputs = document.getElementsByClassName("login-signup-input");
 let errorBox = document.getElementById("error");
 let error = null;
 
-console.log("inputs: ", inputs);
 for (input of inputs) {
-    console.log("adding change to: ", input);
     input.onchange = resetError;
     input.onclick = resetError;
 }
