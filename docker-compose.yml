@@ -1,27 +1,35 @@
+version: "3.9"
+
 services:
     ledgerly:
-        build: .
+        image: danmichaeloudis/ledgerly:v1.0.0
         container_name: ledgerly
-        ports:
-            - "3000:3000"
-        environment:
-            - DATABASE_URL=postgres://serverUser:password@postgres:5432/Ledgerly
-            - JWT_SECRET_KEY=02OnN46Yh6s9iDEXL23PfvH3qaZfywNeqib9Oe1b5pQ=
+        restart: always
         depends_on:
             - postgres
-
+        environment:
+            - DATABASE_URL=postgres://ledgerly:ledgerly@postgres:5432/ledgerly
+            - JWT_SECRET_KEY=02OnN46Yh6s9iDEXL23PfvH3qaZfywNeqib9Oe1b5pQ=
+        ports:
+            - "3000:3000"
+        networks:
+            - ledgerly-net
     postgres:
         image: postgres:15
         container_name: postgres
         restart: always
         environment:
-            POSTGRES_USER: serverUser
-            POSTGRES_PASSWORD: password
-            POSTGRES_DB: Ledgerly
-        ports:
-            - "5432:5432"
+            POSTGRES_USER: ledgerly
+            POSTGRES_PASSWORD: ledgerly
+            POSTGRES_DB: ledgerly
         volumes:
-            - postgres-data:/var/lib/postgresql/data
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - ledgerly-net
 
 volumes:
-    postgres-data:
+    postgres_data:
+
+networks:
+    ledgerly-net:
+        driver: bridge
