@@ -2,7 +2,7 @@ document.getElementById("add-item").onclick = () => {
     const itemsDiv = document.getElementById("items");
 
     const row = document.createElement("div");
-    row.className = "item-row";
+    row.className = "add-item-row";
 
     const itemName = document.createElement("input");
     itemName.type = "text";
