@@ -14,7 +14,7 @@ document.getElementById("submit-add-single").onclick = () => {
     });
     transaction["date"] = date.value;
 
-    const rows = document.querySelectorAll("#items .item-row");
+    const rows = document.querySelectorAll("#items .add-item-row");
     const items = [];
 
     rows.forEach((row) => {
