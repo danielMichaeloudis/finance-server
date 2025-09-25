@@ -385,7 +385,7 @@ fn table_css() -> Css {
             transition: max-height 0.5s ease, opacity 0.5s ease;
         }
 
-        .item-row {
+        .add-item-row {
             display: flex;
             flex-direction: row;
             width: calc(100% * 12/15);
