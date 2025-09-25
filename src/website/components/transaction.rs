@@ -70,7 +70,7 @@ fn transaction_css() -> Css {
             background-color: rgba(144 202 249 / 0.08);
         }
 
-        .item-row {
+        .add-item-row {
             display: flex;
             flex-direction: row;
             width: 100%;
