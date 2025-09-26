@@ -13,9 +13,11 @@ pub fn login_page() -> Markup {
                 }
 
                 #error {}
-                input #username name="username" ."styled-input" type="text" placeholder="Username *";
-                input #password name="password" ."styled-input" type="password" placeholder="Password *";
-                button #"login-button" ."styled-input" ."styled-button" {"Sign In"}
+                form #"login-form" {
+                    input #username name="username" ."styled-input" type="text" placeholder="Username *";
+                    input #password name="password" ."styled-input" type="password" placeholder="Password *";
+                    button #"login-button" ."styled-input" ."styled-button" {"Sign In"}
+                }
 
                 p {
                     "Don't have an account? "

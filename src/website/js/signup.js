@@ -1,3 +1,4 @@
+let form = document.getElementById("signup-form");
 let button = document.getElementById("signup-button");
 let inputs = document.getElementsByClassName("login-signup-input");
 let errorBox = document.getElementById("error");
@@ -13,7 +14,8 @@ function resetError() {
     errorBox.style.display = "none";
 }
 
-button.onclick = () => {
+form.onsubmit = (event) => {
+    event.preventDefault();
     let password = document.getElementById("password").value;
     let confPassword = document.getElementById("conf-password").value;
     if (password != confPassword) {

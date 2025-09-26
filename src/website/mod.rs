@@ -7,15 +7,13 @@ use std::fs;
 
 use axum::{
     body::Body,
-    extract::{path, Request},
+    extract::Request,
     http::{Response, StatusCode},
     middleware::{self, Next},
     routing::get,
     Router,
 };
-use components::navigation_bar;
 use css_helper::Css;
-use maud::{html, Render};
 use pages::{login_page, page};
 
 use crate::{
@@ -29,6 +27,10 @@ use crate::{
 };
 
 pub(crate) fn website_routes() -> Router<AppState> {
+    let login_routes = Router::new()
+        .route("/login", get(async || page(login_page())))
+        .route("/signup", get(async || page(signup_page())))
+        .route_layer(middleware::from_fn(check_logged_in));
     Router::new()
         .route("/home", get(async || authorised_page(home_page())))
         .route("/", get(async || authorised_page(home_page())))
@@ -41,8 +43,7 @@ pub(crate) fn website_routes() -> Router<AppState> {
             get(async || add_transaction()),
         )
         .route_layer(middleware::from_fn(auth))
-        .route("/login", get(async || page(login_page())))
-        .route("/signup", get(async || page(signup_page())))
+        .merge(login_routes)
 }
 
 pub(crate) fn js_routes() -> Router<AppState> {
@@ -87,6 +88,22 @@ async fn auth(req: Request, next: Next) -> Result<Response<Body>, (StatusCode, S
     }
 }
 
+async fn check_logged_in(req: Request, next: Next) -> Result<Response<Body>, (StatusCode, String)> {
+    let api_bridge = ApiBridge::new()
+        .await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let uri = req.uri().to_string();
+    let token = match get_cookie(&req, "token") {
+        Some(token) => token,
+        None => return Ok(next.run(req).await),
+    };
+
+    match api_bridge.test_token(&token).await.is_ok() {
+        true => Ok(redirect_to_home(&uri)),
+        false => Ok(next.run(req).await),
+    }
+}
+
 fn get_cookie(req: &Request, cookie: &str) -> Option<String> {
     let cookies: Vec<&str> = match req.headers().get("cookie") {
         Some(cookie) => match cookie.to_str() {
@@ -112,5 +129,13 @@ fn redirect_to_login(_from: &str) -> Response<Body> {
     *res.status_mut() = StatusCode::FOUND;
     res.headers_mut()
         .append("Location", "/login".parse().unwrap());
+    res
+}
+
+fn redirect_to_home(_from: &str) -> Response<Body> {
+    let mut res = Response::new(Body::empty());
+    *res.status_mut() = StatusCode::FOUND;
+    res.headers_mut()
+        .append("Location", "/home".parse().unwrap());
     res
 }

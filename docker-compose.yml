@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
     ledgerly:
-        image: danmichaeloudis/ledgerly:v1.0.0
+        image: danmichaeloudis/ledgerly:latest
         container_name: ledgerly
         restart: always
         depends_on:

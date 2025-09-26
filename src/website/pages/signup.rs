@@ -12,12 +12,13 @@ pub fn signup_page() -> Markup {
                     "Signup"
                 }
                 #error {}
-                input #username ."styled-input" type="text" placeholder="Username *";
-                input #email ."styled-input" type="email" placeholder="Email *";
-                input #password ."styled-input" type="password" placeholder="Password *";
-                input #"conf-password" ."styled-input" type="password" placeholder="Confirm Password *";
-                button #"signup-button" ."styled-input" ."styled-button" {"Sign Up"}
-
+                form #"signup-form" {
+                    input #username ."styled-input" type="text" placeholder="Username *";
+                    input #email ."styled-input" type="email" placeholder="Email *";
+                    input #password ."styled-input" type="password" placeholder="Password *";
+                    input #"conf-password" ."styled-input" type="password" placeholder="Confirm Password *";
+                    button #"signup-button" ."styled-input" ."styled-button" {"Sign Up"}
+                }
                 p {
                     "Already have an account? "
                     a href="/login" {"Log in"}

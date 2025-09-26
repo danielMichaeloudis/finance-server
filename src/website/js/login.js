@@ -1,3 +1,4 @@
+let form = document.getElementById("login-form");
 let button = document.getElementById("login-button");
 let inputs = document.getElementsByClassName("login-signup-input");
 let errorBox = document.getElementById("error");
@@ -13,7 +14,8 @@ function resetError() {
     errorBox.style.display = "none";
 }
 
-button.onclick = () => {
+form.onsubmit = (event) => {
+    event.preventDefault();
     fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
