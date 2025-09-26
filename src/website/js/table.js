@@ -62,9 +62,6 @@ const addBtn = document.getElementById("add-btn");
 addBtn.onmouseover = (event) => {
     event.currentTarget.parentElement.classList.add("open");
 };
-addBtn.onclick = (event) => {
-    event.currentTarget.parentElement.classList.toggle("open");
-};
 
 addContainer.onmouseleave = (event) => {
     event.currentTarget.classList.remove("open");

@@ -98,7 +98,6 @@ pub async fn route_export(
     State(store): State<Store>,
     State(jwt_key_provider): State<JWTKeyProvider>,
     header_map: HeaderMap,
-    Path(file_type): Path<String>,
 ) -> Result<Response<String>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
     let transactions = json!(get_all_transactions(&store, &user_uuid).await?).to_string();
