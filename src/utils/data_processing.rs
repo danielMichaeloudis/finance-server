@@ -347,12 +347,24 @@ pub async fn get_total_in_out(
     user_uuid: &Uuid,
 ) -> Result<Value, (StatusCode, String)> {
     let transactions = get_all_transactions(store, user_uuid).await?;
-    let incomming = transactions
-        .iter()
-        .fold(0.0, |acc, t| if t.cost > 0.0 { acc + t.cost } else { acc });
-    let outgoing = transactions
-        .iter()
-        .fold(0.0, |acc, t| if t.cost < 0.0 { acc - t.cost } else { acc });
+    let username = &store
+        .get_username(user_uuid)
+        .await
+        .map_err(internal_server_error)?;
+    let incomming = transactions.iter().fold(0.0, |acc, t| {
+        if t.cost > 0.0 && t.buyer.to_lowercase() == username.to_lowercase() {
+            acc + t.cost
+        } else {
+            acc
+        }
+    });
+    let outgoing = transactions.iter().fold(0.0, |acc, t| {
+        if t.cost < 0.0 && t.buyer.to_lowercase() == username.to_lowercase() {
+            acc - t.cost
+        } else {
+            acc
+        }
+    });
     let total = incomming - outgoing;
     let res = json!({"total": total, "incomming": incomming, "outgoing": outgoing});
     Ok(res)

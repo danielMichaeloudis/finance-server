@@ -49,6 +49,18 @@ impl Store {
         .map(|fam| fam.encryption_key)
     }
 
+    pub async fn get_username(&self, user_uuid: &Uuid) -> Result<String, sqlx::Error> {
+        let res = query!(
+            r#"--sql
+            select username from users where user_uuid = $1
+        "#,
+            user_uuid
+        )
+        .fetch_one(&self.pool)
+        .await?;
+        Ok(res.username)
+    }
+
     pub async fn get_user_data(
         &self,
         user_uuid: &Uuid,
