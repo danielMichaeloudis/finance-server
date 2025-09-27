@@ -9,7 +9,7 @@ use maud::{html, Markup, DOCTYPE};
 pub use signup::signup_page;
 pub use table::table_page;
 
-use crate::website::components::navigation_bar;
+use crate::website::components::{header, navigation_bar};
 use css_helper::{Colour, Css, Theme, ThemeValue};
 
 pub fn authorised_page(content: Markup) -> Markup {
@@ -17,7 +17,8 @@ pub fn authorised_page(content: Markup) -> Markup {
         (authorised_page_css())
         script src="/utils.js" defer {};
         script src="/authorsied_page_header.js" defer {};
-        #header ."bg-1" {
+        (header())
+        #"spending-header" ."bg-1" {
             h1 {"Total Spent: " h1 #total {}} br;
             h1 {"Total In: " h1 #incomming {}} br;
             h1 {"Total Out: " h1 #outgoing {}} br;
@@ -162,7 +163,7 @@ fn error_box_css() -> Css {
 fn authorised_page_css() -> Css {
     Css::from((
         r#"
-        #header {
+        #spending-header {
             padding: 1rem;
         }
         #incomming {

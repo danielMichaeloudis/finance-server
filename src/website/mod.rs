@@ -1,6 +1,5 @@
 mod components;
 mod js;
-mod js_utils;
 mod pages;
 
 use std::fs;

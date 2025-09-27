@@ -29,4 +29,5 @@ pub(crate) fn api_routes() -> Router<AppState> {
         .route("/get_family_join_code", get(route_get_family_join_code))
         .route("/goals", get(route_get_goals).post(route_set_goal))
         .route("/transactions_many", post(route_add_many_transactions))
+        .route("/export", get(route_export))
 }

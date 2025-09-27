@@ -1,9 +1,12 @@
 use axum::{
-    extract::State,
-    http::{HeaderMap, StatusCode},
+    extract::{Path, State},
+    http::{header, HeaderMap, HeaderValue, Response, StatusCode},
+    response::AppendHeaders,
     Json,
 };
-use serde_json::Value;
+use serde::Serialize;
+use serde_json::{json, Value};
+use tokio_util::io::ReaderStream;
 
 use crate::{
     models::{Goal, Transaction, VendorData},
@@ -89,4 +92,24 @@ pub async fn route_get_goals(
 ) -> Result<Json<Vec<Goal>>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
     Ok(Json(get_goals(&store, &user_uuid).await?))
+}
+
+pub async fn route_export(
+    State(store): State<Store>,
+    State(jwt_key_provider): State<JWTKeyProvider>,
+    header_map: HeaderMap,
+) -> Result<Response<String>, (StatusCode, String)> {
+    let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
+    let transactions = json!(get_all_transactions(&store, &user_uuid).await?).to_string();
+    let mut res = Response::new(transactions);
+    res.headers_mut().insert(
+        header::CONTENT_TYPE,
+        HeaderValue::from_str("application/json; charset=utf-8").unwrap(),
+    );
+    res.headers_mut().insert(
+        header::CONTENT_DISPOSITION,
+        HeaderValue::from_str("attachment; filename=\"Transactions.json\"").unwrap(),
+    );
+
+    Ok(res)
 }

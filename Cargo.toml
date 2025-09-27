@@ -2,7 +2,7 @@
 default-run = "ledgerly"
 edition = "2021"
 name = "ledgerly"
-version = "0.1.1"
+version = "0.2.0"
 
 [dependencies]
 aes-gcm = "0.10.3"
@@ -17,10 +17,11 @@ jwt-simple = {version = "0.12.12", default-features = false, features = ["pure-r
 maud = {version = "0.27.0", features = ["axum"]}
 password-auth = "1.0.0"
 rand = "0.9.2"
-serde = {version = "1.0.226", features = ["derive"]}
+serde = {version = "1.0.227", features = ["derive"]}
 serde_json = "1.0.145"
 sqlx = {version = "0.8.6", features = ["postgres", "runtime-tokio-native-tls", "uuid", "chrono"]}
 tokio = {version = "1.47.1", features = ["full"]}
+tokio-util = {version = "0.7.16", features = ["io"]}
 tower-http = {version = "0.6.6", features = ["cors"]}
 url = "2.5.7"
 
