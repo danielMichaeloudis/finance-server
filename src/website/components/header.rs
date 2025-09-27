@@ -1,6 +1,8 @@
 use css_helper::Css;
 use maud::{html, Markup};
 
+use crate::website::components::settings_svg;
+
 pub fn header() -> Markup {
     html! {
         (header_css())
@@ -9,8 +11,7 @@ pub fn header() -> Markup {
                 "Ledgerly"
             }
             div #"menu-container"{
-                h1 #"menu-btn" {"S"}
-                //svg {}
+                div #"menu-btn" {(settings_svg())}
                 div #"menu-dropdown" ."bg-1"  {
                     a #export{"Export Data"}
                     a #logout {"Log Out"}
@@ -27,6 +28,7 @@ fn header_css() -> Css {
     #header {
         display: flex;
         flex-direction: row;
+        align-items: center;
         border-radius: 0;
         position: sticky;
         top: 0;
@@ -47,10 +49,14 @@ fn header_css() -> Css {
     }
 
     #menu-btn {
-        border: 1px;
-        border-color: #000000;
-        padding: 0 2rem;
+        border-radius: 6px;
+        padding: 0 1rem;
         display: inline-block;
+        transition: background-color 0.4s ease;
+    }
+
+    #menu-container:hover #menu-btn {
+        background-color: #ffffff10
     }
 
     #menu-dropdown {
