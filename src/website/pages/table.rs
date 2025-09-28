@@ -10,7 +10,7 @@ use crate::{
     api_bridge::ApiBridge,
     models::Transaction,
     website::{
-        components::{add_transaction, adding_pages_css},
+        components::{add_transaction, adding_pages_css, dropdown_arrow_svg},
         get_cookie,
     },
 };
@@ -145,10 +145,7 @@ fn filter_section(query_params: &Query<FilterParams>) -> Markup {
             div #"filters-header" {
                 h3 {"Filters"}
                 div ."expand-icon"{
-                    span ."expand-marker"{
-                        "V"
-                        //svg{}
-                    }
+                    (dropdown_arrow_svg())
                 }
             }
             div ."dropdown" {
@@ -189,11 +186,8 @@ fn transaction_row(transaction: &Transaction) -> Markup {
                     p {(format!("£{:.2}",transaction.cost))}
                 }
                 div ."expand-icon"{
-                    span ."expand-marker"{
-                        @if !transaction.items.is_empty() {
-                            "V"
-                        }
-                        //svg{}
+                    @if !transaction.items.is_empty() {
+                        (dropdown_arrow_svg())
                     }
                 }
             }
@@ -317,6 +311,7 @@ fn table_css() -> Css {
             justify-content: space-between;
             margin-left: 1rem;
             margin-right: 1rem;
+            align-items: center;
         }
 
         #filters .dropdown {
@@ -350,7 +345,8 @@ fn table_css() -> Css {
         .transaction-row {
             display: flex;
             flex-direction: row;
-            width: 100%;
+            width: 100%;  
+            align-items: center;
         }
 
         .transaction-row div, .item-row div {
@@ -404,10 +400,6 @@ fn table_css() -> Css {
             width: calc(100% * 2/15);
         }
 
-        .expand-icon {
-            padding: 1rem;
-        }
-
         .pill {
             padding: 6px 14px;
             border-radius: 999px;
@@ -421,13 +413,14 @@ fn table_css() -> Css {
             background-color: rgba(255, 255, 255, 0.24);
         }
         
-        .expand-marker {
+        .expand-icon {
             display: inline-block;
             transition: transform 0.4s ease;
             transform: rotate(0deg);
+            height: 25px;
         }
 
-        .transaction-container.open .expand-marker, #filters.open .expand-marker {
+        .transaction-container.open .expand-icon, #filters.open .expand-icon {
             transform: rotate(180deg);
         }
 
