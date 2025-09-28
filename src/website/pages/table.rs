@@ -10,7 +10,7 @@ use crate::{
     api_bridge::ApiBridge,
     models::Transaction,
     website::{
-        components::{add_transaction, adding_pages_css, dropdown_arrow_svg},
+        components::{add_transaction, add_transaction_svg, adding_pages_css, dropdown_arrow_svg},
         get_cookie,
     },
 };
@@ -110,10 +110,9 @@ pub async fn table_page(req: Request) -> Markup {
         div #"add-container" {
             div #"add-btn"{"+"}
             div #"adding-btns" {
-                button #"add-transaction-btn" popovertarget="add-single-transaction"{"1"}
-                button {"2"}
-                button {"3"}
-                button {"4"}
+                button #"add-transaction-btn" ."bg-1" popovertarget="add-single-transaction"{
+                    (add_transaction_svg())
+                }
             }
         }
         (filter_section(&query_params))
@@ -283,21 +282,25 @@ fn table_css() -> Css {
             display: none;
             flex-direction: column-reverse;
             transition: opacity 0.4s ease, display 2s;
-            transition-behavior: allow-discrete, ;
+            transition-behavior: allow-discrete;
             opacity: 0;
             z-index: 999;
         }
 
         #adding-btns button {
-            margin-bottom: 0.5rem;
             width: 40px;
             height: 40px;
-            background-color: rgb(18, 18, 18);
+            transition: background-color 0.4s ease;
             border-radius: 50%;
-            border-color: rgba(0, 0, 0, 0.87);
-            border-style: solid;
+            border-style: none;
             color: #fff;
             max-height: inherit;
+            margin: 0 0 0.5rem 0;
+            padding: 0;
+        }
+
+        #adding-btns button:hover {
+            background-color: #353535;
         }
 
         #add-container.open #adding-btns {
