@@ -1,9 +1,52 @@
-use maud::{html, Markup};
+use maud::{html, Markup, PreEscaped};
+
+// Colour #848484
+// https://www.svgrepo.com/collection/dazzle-line-icons
 
 pub fn settings_svg() -> Markup {
     html! {
-        svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50" viewBox="0,0,256,256"{
-            g fill="#848484" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"{g transform="scale(3.55556,3.55556)"{path d="M57.531,30.556c1.429,0.257 2.469,1.501 2.469,2.953v4.983c0,1.452 -1.04,2.696 -2.469,2.953l-2.974,0.535c-0.325,1.009 -0.737,1.977 -1.214,2.907l1.73,2.49c0.829,1.192 0.685,2.807 -0.342,3.834l-3.523,3.523c-1.027,1.027 -2.642,1.171 -3.834,0.342l-2.49,-1.731c-0.93,0.477 -1.898,0.889 -2.906,1.214l-0.535,2.974c-0.256,1.427 -1.5,2.467 -2.952,2.467h-4.983c-1.452,0 -2.696,-1.04 -2.953,-2.469l-0.535,-2.974c-1.009,-0.325 -1.977,-0.736 -2.906,-1.214l-2.49,1.731c-1.192,0.829 -2.807,0.685 -3.834,-0.342l-3.523,-3.523c-1.027,-1.027 -1.171,-2.641 -0.342,-3.834l1.73,-2.49c-0.477,-0.93 -0.889,-1.898 -1.214,-2.907l-2.974,-0.535c-1.427,-0.256 -2.467,-1.5 -2.467,-2.952v-4.983c0,-1.452 1.04,-2.696 2.469,-2.953l2.974,-0.535c0.325,-1.009 0.737,-1.977 1.214,-2.907l-1.73,-2.49c-0.829,-1.192 -0.685,-2.807 0.342,-3.834l3.523,-3.523c1.027,-1.027 2.642,-1.171 3.834,-0.342l2.49,1.731c0.93,-0.477 1.898,-0.889 2.906,-1.214l0.535,-2.974c0.256,-1.427 1.5,-2.467 2.952,-2.467h4.983c1.452,0 2.696,1.04 2.953,2.469l0.535,2.974c1.009,0.325 1.977,0.736 2.906,1.214l2.49,-1.731c1.192,-0.829 2.807,-0.685 3.834,0.342l3.523,3.523c1.027,1.027 1.171,2.641 0.342,3.834l-1.73,2.49c0.477,0.93 0.889,1.898 1.214,2.907zM36,45c4.97,0 9,-4.029 9,-9c0,-4.971 -4.03,-9 -9,-9c-4.97,0 -9,4.029 -9,9c0,4.971 4.03,9 9,9z";}}
+        svg width="50px" height="50px" fill="#848484ff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {
+            g id="SVGRepo_bgCarrier" stroke-width="0";
+            g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round";
+            g id="SVGRepo_iconCarrier"{
+                path d="M20.89,9.78h-.65a1.16,1.16,0,0,1-1-.74V9a1.13,1.13,0,0,1,.22-1.26l.46-.46a1.13,1.13,0,0,0,0-1.58L18.29,4.14a1.13,1.13,0,0,0-1.58,0l-.46.46A1.13,1.13,0,0,1,15,4.82h0a1.16,1.16,0,0,1-.74-1V3.11A1.11,1.11,0,0,0,13.11,2H10.89A1.11,1.11,0,0,0,9.78,3.11v.65a1.16,1.16,0,0,1-.74,1H9A1.13,1.13,0,0,1,7.75,4.6l-.46-.46a1.13,1.13,0,0,0-1.58,0L4.14,5.71a1.13,1.13,0,0,0,0,1.58l.46.46A1.13,1.13,0,0,1,4.82,9V9a1.16,1.16,0,0,1-1,.74H3.11A1.11,1.11,0,0,0,2,10.89v2.22a1.11,1.11,0,0,0,1.11,1.11h.65a1.16,1.16,0,0,1,1,.74v0a1.13,1.13,0,0,1-.22,1.26l-.46.46a1.13,1.13,0,0,0,0,1.58l1.57,1.57a1.13,1.13,0,0,0,1.58,0l.46-.46A1.13,1.13,0,0,1,9,19.18H9a1.16,1.16,0,0,1,.74,1v.65A1.11,1.11,0,0,0,10.89,22h2.22a1.11,1.11,0,0,0,1.11-1.11v-.65a1.16,1.16,0,0,1,.74-1h0a1.13,1.13,0,0,1,1.26.22l.46.46a1.13,1.13,0,0,0,1.58,0l1.57-1.57a1.13,1.13,0,0,0,0-1.58l-.46-.46A1.13,1.13,0,0,1,19.18,15v0a1.16,1.16,0,0,1,1-.74h.65A1.11,1.11,0,0,0,22,13.11V10.89A1.11,1.11,0,0,0,20.89,9.78ZM12,16a4,4,0,1,1,4-4A4,4,0,0,1,12,16Z";
+            }
+        }
+    }
+}
+
+pub fn dropdown_arrow_svg() -> Markup {
+    html! {
+        svg width="25px" height="25px" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#848484" transform="rotate(0)"{
+            g id="SVGRepo_bgCarrier" stroke-width="0";
+            g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.192";
+            g id="SVGRepo_iconCarrier"{
+                path d="M6 9L12 15L18 9" stroke="#848484" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round";
+            }
+        }
+    }
+}
+
+pub fn close_svg() -> Markup {
+    html! {
+        svg width="40px" height="40px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#848484" style="margin:0;"{
+            g id="SVGRepo_bgCarrier" stroke-width="0";
+            g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round";
+            g id="SVGRepo_iconCarrier" {
+                path d="M6 6L18 18M18 6L6 18" stroke="#848484" stroke-width="2" stroke-linecap="round" stroke-linejoin="round";
+            }
+        }
+    }
+}
+
+pub fn add_transaction_svg() -> Markup {
+    html! {
+        svg height="24px" width="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#848484"{
+            g id="SVGRepo_bgCarrier" stroke-width="0";
+            g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round";
+            g id="SVGRepo_iconCarrier"{
+                path d="M21 5L19 12H7.37671M20 16H8L6 3H3M16 5.5H13.5M13.5 5.5H11M13.5 5.5V8M13.5 5.5V3M9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20C7 19.4477 7.44772 19 8 19C8.55228 19 9 19.4477 9 20ZM20 20C20 20.5523 19.5523 21 19 21C18.4477 21 18 20.5523 18 20C18 19.4477 18.4477 19 19 19C19.5523 19 20 19.4477 20 20Z" stroke="#848484" stroke-width="2" stroke-linecap="round" stroke-linejoin="round";
+            }
         }
     }
 }

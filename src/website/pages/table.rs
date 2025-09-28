@@ -10,7 +10,7 @@ use crate::{
     api_bridge::ApiBridge,
     models::Transaction,
     website::{
-        components::{add_transaction, adding_pages_css},
+        components::{add_transaction, add_transaction_svg, adding_pages_css, dropdown_arrow_svg},
         get_cookie,
     },
 };
@@ -110,10 +110,9 @@ pub async fn table_page(req: Request) -> Markup {
         div #"add-container" {
             div #"add-btn"{"+"}
             div #"adding-btns" {
-                button #"add-transaction-btn" popovertarget="add-single-transaction"{"1"}
-                button {"2"}
-                button {"3"}
-                button {"4"}
+                button #"add-transaction-btn" ."bg-1" popovertarget="add-single-transaction"{
+                    (add_transaction_svg())
+                }
             }
         }
         (filter_section(&query_params))
@@ -145,10 +144,7 @@ fn filter_section(query_params: &Query<FilterParams>) -> Markup {
             div #"filters-header" {
                 h3 {"Filters"}
                 div ."expand-icon"{
-                    span ."expand-marker"{
-                        "V"
-                        //svg{}
-                    }
+                    (dropdown_arrow_svg())
                 }
             }
             div ."dropdown" {
@@ -189,11 +185,8 @@ fn transaction_row(transaction: &Transaction) -> Markup {
                     p {(format!("£{:.2}",transaction.cost))}
                 }
                 div ."expand-icon"{
-                    span ."expand-marker"{
-                        @if !transaction.items.is_empty() {
-                            "V"
-                        }
-                        //svg{}
+                    @if !transaction.items.is_empty() {
+                        (dropdown_arrow_svg())
                     }
                 }
             }
@@ -289,21 +282,25 @@ fn table_css() -> Css {
             display: none;
             flex-direction: column-reverse;
             transition: opacity 0.4s ease, display 2s;
-            transition-behavior: allow-discrete, ;
+            transition-behavior: allow-discrete;
             opacity: 0;
             z-index: 999;
         }
 
         #adding-btns button {
-            margin-bottom: 0.5rem;
             width: 40px;
             height: 40px;
-            background-color: rgb(18, 18, 18);
+            transition: background-color 0.4s ease;
             border-radius: 50%;
-            border-color: rgba(0, 0, 0, 0.87);
-            border-style: solid;
+            border-style: none;
             color: #fff;
             max-height: inherit;
+            margin: 0 0 0.5rem 0;
+            padding: 0;
+        }
+
+        #adding-btns button:hover {
+            background-color: #353535;
         }
 
         #add-container.open #adding-btns {
@@ -317,6 +314,7 @@ fn table_css() -> Css {
             justify-content: space-between;
             margin-left: 1rem;
             margin-right: 1rem;
+            align-items: center;
         }
 
         #filters .dropdown {
@@ -350,7 +348,8 @@ fn table_css() -> Css {
         .transaction-row {
             display: flex;
             flex-direction: row;
-            width: 100%;
+            width: 100%;  
+            align-items: center;
         }
 
         .transaction-row div, .item-row div {
@@ -404,10 +403,6 @@ fn table_css() -> Css {
             width: calc(100% * 2/15);
         }
 
-        .expand-icon {
-            padding: 1rem;
-        }
-
         .pill {
             padding: 6px 14px;
             border-radius: 999px;
@@ -421,13 +416,14 @@ fn table_css() -> Css {
             background-color: rgba(255, 255, 255, 0.24);
         }
         
-        .expand-marker {
+        .expand-icon {
             display: inline-block;
             transition: transform 0.4s ease;
             transform: rotate(0deg);
+            height: 25px;
         }
 
-        .transaction-container.open .expand-marker, #filters.open .expand-marker {
+        .transaction-container.open .expand-icon, #filters.open .expand-icon {
             transform: rotate(180deg);
         }
 

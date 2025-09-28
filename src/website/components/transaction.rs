@@ -1,7 +1,7 @@
 use css_helper::Css;
 use maud::{html, Markup};
 
-use crate::models::Transaction;
+use crate::{models::Transaction, website::components::close_svg};
 
 pub fn transaction_popup(
     title: Option<&str>,
@@ -20,7 +20,7 @@ pub fn transaction_popup(
         (js_with_submit)
         div #"transaction" ."bg-1" {
             h1 {(title)}
-            button #"close-transaction" ."close-btn" popovertarget=[popover_target] popovertargetaction="hide" {"X"}
+            button #"close-transaction" ."close-btn" popovertarget=[popover_target] popovertargetaction="hide" {(close_svg())}
             form #"transaction-form" {
                 input #"vendor" name="vendor" ."styled-input" type="text" placeholder="Vendor *";
                 input #"buyer" name="buyer" ."styled-input" type="text" placeholder="Buyer *";
@@ -52,10 +52,6 @@ fn transaction_css() -> Css {
             transform: translate(-50%, -50%);
         }
 
-        #transaction * {
-            margin: 0.75rem;
-        }
-
         #add-item {
             background-color: rgba(0 0 0 / 0);
             border-color: rgb(144, 202, 249);
@@ -75,11 +71,29 @@ fn transaction_css() -> Css {
             flex-direction: row;
             width: 100%;
             justify-content: space-between;
+            align-items: center;
         }
 
         .item-input {
             width: 25%;
             margin: 0.25rem;
+        }
+
+        .remove-item-btn {
+            background-color: #00000000;
+            border-radius: 50%;
+            border-style: none;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+        }
+
+        #transaction * {
+            margin: 0.75rem;
+        }
+
+        .add-item-row * {
+            margin: 0.5rem;
         }
 
     "#,
