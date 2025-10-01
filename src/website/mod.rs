@@ -33,8 +33,14 @@ pub(crate) fn website_routes() -> Router<AppState> {
     let svg_routes = Router::new().route("/close.svg", get(async || close_svg()));
 
     Router::new()
-        .route("/home", get(async || authorised_page(home_page())))
-        .route("/", get(async || authorised_page(home_page())))
+        .route(
+            "/home",
+            get(async |req: Request| authorised_page(home_page(req).await)),
+        )
+        .route(
+            "/",
+            get(async |req: Request| authorised_page(home_page(req).await)),
+        )
         .route(
             "/table",
             get(async |req: Request| authorised_page(table_page(req).await)),

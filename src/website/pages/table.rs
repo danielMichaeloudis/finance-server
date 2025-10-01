@@ -4,25 +4,19 @@ use axum::extract::{Query, Request};
 use chrono::{Datelike, Month, NaiveDate};
 use css_helper::Css;
 use maud::{html, Markup};
-use serde::{Deserialize, Serialize};
 
 use crate::{
     api_bridge::ApiBridge,
     models::Transaction,
     website::{
-        components::{add_transaction, add_transaction_svg, adding_pages_css, dropdown_arrow_svg},
+        components::{
+            add_transaction, add_transaction_svg, adding_pages_css, dropdown_arrow_svg,
+            filter_section, filter_transactions,
+        },
         get_cookie,
+        pages::FilterParams,
     },
 };
-
-#[derive(Debug, Serialize, Deserialize)]
-struct FilterParams {
-    start: Option<NaiveDate>,
-    end: Option<NaiveDate>,
-    tags: Option<String>,
-    buyer: Option<String>,
-    item_bought_for: Option<String>,
-}
 
 pub async fn table_page(req: Request) -> Markup {
     let query_params = Query::<FilterParams>::try_from_uri(req.uri()).unwrap();
@@ -40,65 +34,7 @@ pub async fn table_page(req: Request) -> Markup {
         Err(_) => return html! {},
     };
 
-    let tags_vec: Option<Vec<&str>> = query_params
-        .tags
-        .as_ref()
-        .map(|tag_str| tag_str.split(",").collect());
-    let buyer_vec: Option<Vec<&str>> = query_params
-        .buyer
-        .as_ref()
-        .map(|b_str| b_str.split(",").collect());
-    let bf_vec: Option<Vec<&str>> = query_params
-        .item_bought_for
-        .as_ref()
-        .map(|bf_str| bf_str.split(",").collect());
-
-    let transaction_list: Vec<Transaction> = transaction_list
-        .iter()
-        .filter(|t| {
-            let mut within_date_rng = true;
-            let mut has_tags = true;
-            let mut has_buyer = true;
-            let mut has_bought_for = true;
-
-            if let Some(t_time) = t.date {
-                if let Some(start_date) = query_params.start {
-                    if t_time < start_date {
-                        within_date_rng = false;
-                    }
-                }
-
-                if let Some(end_date) = query_params.end {
-                    if t_time > end_date {
-                        within_date_rng = false;
-                    }
-                }
-            }
-            if let Some(tags) = &tags_vec {
-                has_tags = false;
-                for tag in tags {
-                    if t.tags.contains(&tag.to_string()) {
-                        has_tags = true;
-                        break;
-                    }
-                }
-            }
-            if let Some(buyers) = &buyer_vec {
-                has_buyer = buyers.contains(&t.buyer.as_str());
-            }
-            if let Some(bought_for) = &bf_vec {
-                has_bought_for = false;
-                for b in bought_for {
-                    if t.items.iter().any(|item| item.bought_for == *b) {
-                        has_bought_for = true;
-                        break;
-                    }
-                }
-            }
-            has_buyer && has_tags && has_bought_for && within_date_rng
-        })
-        .cloned()
-        .collect();
+    let transaction_list: Vec<Transaction> = filter_transactions(&transaction_list, &query_params);
 
     let dates = get_days_data(&transaction_list);
     html! {
@@ -133,27 +69,6 @@ pub async fn table_page(req: Request) -> Markup {
                     }
                 }
                 hr;
-            }
-        }
-    }
-}
-
-fn filter_section(query_params: &Query<FilterParams>) -> Markup {
-    html! {
-        div #"filters" ."bg-1" {
-            div #"filters-header" {
-                h3 {"Filters"}
-                div ."expand-icon"{
-                    (dropdown_arrow_svg())
-                }
-            }
-            div ."dropdown" {
-                input #"start-date" name="start-date" ."styled-input" type="date" placeholder="Start Date";
-                input #"end-date" name="end-date" ."styled-input" type="date" placeholder="End Date";
-                input #"buyer" name="buyer" ."styled-input" type="text" placeholder="Buyer" value=[&query_params.buyer];
-                input #"tags" name="tags" ."styled-input" type="text" placeholder="Tags" value=[&query_params.tags];
-                input #"bought-for" name="bought-for" ."styled-input" type="text" placeholder="Bought For" value=[&query_params.item_bought_for];
-                button #"filter-button" ."styled-input" ."styled-button" {"Apply"}
             }
         }
     }
@@ -308,23 +223,13 @@ fn table_css() -> Css {
             display: flex;
         }
 
-        .header-row, #filters div {
+        .header-row {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
             margin-left: 1rem;
             margin-right: 1rem;
             align-items: center;
-        }
-
-        #filters .dropdown {
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-
-        #filters .styled-input {
-            width: auto;
-            min-width: 250px;
         }
 
         ul {
@@ -423,7 +328,7 @@ fn table_css() -> Css {
             height: 25px;
         }
 
-        .transaction-container.open .expand-icon, #filters.open .expand-icon {
+        .transaction-container.open .expand-icon{
             transform: rotate(180deg);
         }
 

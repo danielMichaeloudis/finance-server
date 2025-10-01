@@ -3,14 +3,25 @@ mod login;
 mod signup;
 mod table;
 
+use chrono::NaiveDate;
 pub use home::home_page;
 pub use login::login_page;
 use maud::{html, Markup, DOCTYPE};
+use serde::{Deserialize, Serialize};
 pub use signup::signup_page;
 pub use table::table_page;
 
 use crate::website::components::{header, navigation_bar};
 use css_helper::{Colour, Css, Theme, ThemeValue};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FilterParams {
+    pub start: Option<NaiveDate>,
+    pub end: Option<NaiveDate>,
+    pub tags: Option<String>,
+    pub buyer: Option<String>,
+    pub item_bought_for: Option<String>,
+}
 
 pub fn authorised_page(content: Markup) -> Markup {
     let wrapped = html! {
