@@ -14,6 +14,7 @@ use axum::{
 };
 use css_helper::Css;
 use pages::{login_page, page};
+use tower_http::services::ServeFile;
 
 use crate::{
     api_bridge::ApiBridge,
@@ -33,8 +34,14 @@ pub(crate) fn website_routes() -> Router<AppState> {
     let svg_routes = Router::new().route("/close.svg", get(async || close_svg()));
 
     Router::new()
-        .route("/home", get(async || authorised_page(home_page())))
-        .route("/", get(async || authorised_page(home_page())))
+        .route(
+            "/home",
+            get(async |req: Request| authorised_page(home_page(req).await)),
+        )
+        .route(
+            "/",
+            get(async |req: Request| authorised_page(home_page(req).await)),
+        )
         .route(
             "/table",
             get(async |req: Request| authorised_page(table_page(req).await)),
@@ -46,6 +53,7 @@ pub(crate) fn website_routes() -> Router<AppState> {
         .route_layer(middleware::from_fn(auth))
         .merge(login_routes)
         .merge(svg_routes)
+        .nest_service("/favicon.ico", ServeFile::new("./favicon.ico"))
 }
 
 pub(crate) fn js_routes() -> Router<AppState> {

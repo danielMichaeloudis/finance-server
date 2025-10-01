@@ -11,8 +11,8 @@ pub struct LoginInfo {
 
 #[derive(Deserialize)]
 pub struct NewPassword {
-    pub old_password: String,
-    pub new_password: String,
+    pub _old_password: String,
+    pub _new_password: String,
 }
 
 #[derive(Deserialize)]

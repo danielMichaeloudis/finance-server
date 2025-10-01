@@ -1,9 +1,13 @@
 mod adding_pages;
+mod analytics_cards;
+mod filter;
 mod header;
 mod navigation;
 mod svgs;
 mod transaction;
 pub use adding_pages::{add_transaction, adding_pages_css};
+pub use analytics_cards::*;
+pub use filter::{filter_section, filter_transactions};
 pub use header::header;
 pub use navigation::navigation_bar;
 pub use svgs::*;

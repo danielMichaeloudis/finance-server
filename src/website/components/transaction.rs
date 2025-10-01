@@ -7,7 +7,7 @@ pub fn transaction_popup(
     title: Option<&str>,
     js_with_submit: Option<&str>,
     popover_target: Option<&str>,
-    transactions: Option<Vec<Transaction>>,
+    _transactions: Option<Vec<Transaction>>,
 ) -> Markup {
     let title = title.unwrap_or("New Transaction");
     let js_with_submit = match js_with_submit {

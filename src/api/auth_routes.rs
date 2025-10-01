@@ -110,9 +110,9 @@ pub async fn route_login(
     }
 }
 
-pub async fn reset_password(
-    State(store): State<Store>,
-    State(jwt_key_provider): State<JWTKeyProvider>,
-    Json(passwords): Json<NewPassword>,
+pub async fn _reset_password(
+    State(_store): State<Store>,
+    State(_jwt_key_provider): State<JWTKeyProvider>,
+    Json(_passwords): Json<NewPassword>,
 ) {
 }

@@ -1,12 +1,9 @@
 use axum::{
-    extract::{Path, State},
+    extract::State,
     http::{header, HeaderMap, HeaderValue, Response, StatusCode},
-    response::AppendHeaders,
     Json,
 };
-use serde::Serialize;
 use serde_json::{json, Value};
-use tokio_util::io::ReaderStream;
 
 use crate::{
     models::{Goal, Transaction, VendorData},

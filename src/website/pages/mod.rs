@@ -7,7 +7,7 @@ pub use home::home_page;
 pub use login::login_page;
 use maud::{html, Markup, DOCTYPE};
 pub use signup::signup_page;
-pub use table::table_page;
+pub use table::{table_page, FilterParams};
 
 use crate::website::components::{header, navigation_bar};
 use css_helper::{Colour, Css, Theme, ThemeValue};
@@ -32,7 +32,10 @@ pub fn authorised_page(content: Markup) -> Markup {
 pub fn page(content: Markup) -> Markup {
     html! {
         (DOCTYPE)
-        (page_css())
+        head {
+            title {"Ledgerly"}
+            (page_css())
+        }
         body {(content)}
     }
 }

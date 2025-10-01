@@ -8,7 +8,7 @@ use api::api_routes;
 use axum::{
     http::{
         header::{AUTHORIZATION, CONTENT_TYPE},
-        HeaderValue, Method,
+        Method,
     },
     routing::get,
     Json, Router,
@@ -18,7 +18,7 @@ use sqlx::{migrate::Migrator, postgres::PgPoolOptions, Connection, PgConnection,
 use utils::AppState;
 use website::website_routes;
 
-use crate::{api_bridge::ApiBridge, website::js_routes};
+use crate::website::js_routes;
 
 static MIGRATOR: Migrator = sqlx::migrate!();
 
