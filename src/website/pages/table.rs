@@ -1,42 +1,23 @@
 use std::collections::VecDeque;
 
-use axum::extract::{Query, Request};
+use axum::extract::Query;
 use chrono::{Datelike, Month, NaiveDate};
 use css_helper::Css;
 use maud::{html, Markup};
 
 use crate::{
-    api_bridge::ApiBridge,
     models::Transaction,
     website::{
         components::{
             add_transaction, add_transaction_svg, adding_pages_css, dropdown_arrow_svg,
-            filter_section, filter_transactions,
+            filter_section,
         },
-        get_cookie,
         pages::FilterParams,
     },
 };
 
-pub async fn table_page(req: Request) -> Markup {
-    let query_params = Query::<FilterParams>::try_from_uri(req.uri()).unwrap();
-    let transaction_list = match ApiBridge::new().await {
-        Ok(bridge) => {
-            let token = match get_cookie(&req, "token") {
-                Some(token) => token,
-                None => return html! {},
-            };
-            match bridge.get_transactions(&token).await {
-                Ok(t) => t,
-                Err(_) => return html! {},
-            }
-        }
-        Err(_) => return html! {},
-    };
-
-    let transaction_list: Vec<Transaction> = filter_transactions(&transaction_list, &query_params);
-
-    let dates = get_days_data(&transaction_list);
+pub fn table_page(transaction_list: &[Transaction], query_params: &Query<FilterParams>) -> Markup {
+    let dates = get_days_data(transaction_list);
     html! {
         script src="/table.js" defer {}
         (table_css())
@@ -51,7 +32,7 @@ pub async fn table_page(req: Request) -> Markup {
                 }
             }
         }
-        (filter_section(&query_params))
+        (filter_section(query_params))
         div ."bg-1"{
             @for (date, mut transactions) in dates {
                 ."header-row" {

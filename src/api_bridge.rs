@@ -7,7 +7,6 @@ use crate::{
     api::*,
     models::Transaction,
     utils::{get_jwt_provider, get_store, JWTKeyProvider, Store},
-    AppState,
 };
 
 pub struct ApiBridge {

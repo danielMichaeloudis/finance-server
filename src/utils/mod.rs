@@ -10,7 +10,7 @@ use axum::http::StatusCode;
 
 pub(crate) use auth::get_uuid_from_token;
 pub(crate) use data_processing::*;
-pub(crate) use encryption::{decrypt_data, encrypt_data};
+pub(crate) use encryption::encrypt_data;
 pub(crate) use jwt::{get_jwt_provider, JWTKeyProvider};
 pub(crate) use state::AppState;
 pub(crate) use store::{get_store, Store};

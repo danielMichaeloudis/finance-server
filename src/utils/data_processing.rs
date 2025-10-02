@@ -1,12 +1,12 @@
 use crate::{
-    models::{CachedData, EncryptedDataReturn, Goal, Transaction, VendorData},
+    models::{EncryptedDataReturn, Goal, Transaction, VendorData},
     utils::encrypt_data,
 };
 
 use super::{encryption::decrypt_data, internal_server_error, store::Store};
 use axum::http::StatusCode;
-use chrono::{NaiveDate, Utc};
-use serde_json::{json, Value};
+use chrono::Utc;
+use serde_json::json;
 use uuid::Uuid;
 
 pub async fn process_transaction_list(
@@ -42,38 +42,6 @@ pub async fn process_transaction_list(
         decrypted_transactions.push(decrypted_transaction);
     }
     Ok(decrypted_transactions)
-}
-
-pub async fn process_cache_list(
-    user_or_family: &str,
-    uuid: &Uuid,
-    encrypted_data: &Vec<EncryptedDataReturn>,
-    store: &Store,
-) -> Result<Vec<CachedData>, (StatusCode, String)> {
-    let mut decrypted_cache = vec![];
-    for cached_value in encrypted_data {
-        let decrypted_value = decrypt_data(
-            user_or_family,
-            uuid,
-            cached_value.encrypted_data.clone(),
-            store,
-        )
-        .await
-        .map_err(internal_server_error)?["cache"]
-            .take();
-        let decrypted_cached_data: Option<CachedData> = serde_json::from_value(decrypted_value)
-            .unwrap_or_else(|_| {
-                println!("Invalid cache uuid: {:?}", cached_value.uuid);
-                None
-            });
-        let mut decrypted_cached_data = match decrypted_cached_data {
-            None => continue,
-            Some(v) => v,
-        };
-        decrypted_cached_data.uuid = cached_value.uuid;
-        decrypted_cache.push(decrypted_cached_data);
-    }
-    Ok(decrypted_cache)
 }
 
 pub async fn process_goals_list(
@@ -146,30 +114,6 @@ pub async fn get_family_transactions(
     let fam_data =
         process_transaction_list("family", family_uuid, &encrypted_fam_data, store).await?;
     Ok(fam_data)
-}
-
-pub async fn get_user_cache(
-    store: &Store,
-    user_uuid: &Uuid,
-) -> Result<Vec<CachedData>, (StatusCode, String)> {
-    let encrypted_data = store
-        .get_user_data(user_uuid)
-        .await
-        .map_err(internal_server_error)?;
-    let data = process_cache_list("user", user_uuid, &encrypted_data, store).await?;
-    Ok(data)
-}
-
-pub async fn get_family_cache(
-    store: &Store,
-    family_uuid: &Uuid,
-) -> Result<Vec<CachedData>, (StatusCode, String)> {
-    let encrypted_data = store
-        .get_family_data(family_uuid)
-        .await
-        .map_err(internal_server_error)?;
-    let data = process_cache_list("family", family_uuid, &encrypted_data, store).await?;
-    Ok(data)
 }
 
 pub async fn encrypt_and_add_transaction(
@@ -288,33 +232,6 @@ pub async fn encrypt_add_transactions(
     Ok(errors)
 }
 
-pub async fn add_cached_value(
-    user_or_family: &str,
-    uuid: &Uuid,
-    name: String,
-    value: Value,
-    store: &Store,
-) -> Result<(), (StatusCode, String)> {
-    let time = Utc::now().naive_utc();
-    let data = json!({"cache": {"name": name, "value": value, "created": time}});
-    println!("added cache value: {}", data);
-    let encrypted_value = encrypt_data(user_or_family, uuid, data, store)
-        .await
-        .map_err(internal_server_error)?;
-    if user_or_family == "family" {
-        store
-            .add_family_data(uuid, encrypted_value)
-            .await
-            .map_err(internal_server_error)?;
-    } else {
-        store
-            .add_user_data(uuid, encrypted_value)
-            .await
-            .map_err(internal_server_error)?;
-    }
-    Ok(())
-}
-
 pub async fn process_vendor_data(
     store: &Store,
     user_uuid: &Uuid,
@@ -340,136 +257,6 @@ pub async fn process_vendor_data(
         }
     }
     Ok(vendor_data)
-}
-
-pub async fn get_total_in_out(
-    store: &Store,
-    user_uuid: &Uuid,
-) -> Result<Value, (StatusCode, String)> {
-    let transactions = get_all_transactions(store, user_uuid).await?;
-    let username = &store
-        .get_username(user_uuid)
-        .await
-        .map_err(internal_server_error)?;
-    let incomming = transactions.iter().fold(0.0, |acc, t| {
-        if t.cost > 0.0 && t.buyer.to_lowercase() == username.to_lowercase() {
-            acc + t.cost
-        } else {
-            acc
-        }
-    });
-    let outgoing = transactions.iter().fold(0.0, |acc, t| {
-        if t.cost < 0.0 && t.buyer.to_lowercase() == username.to_lowercase() {
-            acc - t.cost
-        } else {
-            acc
-        }
-    });
-    let total = incomming - outgoing;
-    let res = json!({"total": total, "incomming": incomming, "outgoing": outgoing});
-    Ok(res)
-}
-
-pub async fn get_total_spent(store: &Store, user_uuid: &Uuid) -> Result<f64, (StatusCode, String)> {
-    let family_uuid = store
-        .get_family_uuid(user_uuid)
-        .await
-        .map_err(internal_server_error)?;
-    let user_sum = get_user_spent(store, user_uuid).await?;
-    if family_uuid.is_empty() {
-        return Ok(user_sum);
-    }
-    Ok(user_sum + get_family_spent(store, &family_uuid[0]).await?)
-}
-
-pub async fn get_user_spent(store: &Store, user_uuid: &Uuid) -> Result<f64, (StatusCode, String)> {
-    let cache = get_user_cache(store, user_uuid).await?;
-    let mut cached_total: f64 = 0.0;
-    let mut cached_timestamp = NaiveDate::MIN;
-    let mut cached_uuid: Option<Uuid> = None;
-    for cached_value in cache {
-        if cached_value.name == "total" {
-            cached_total = match serde_json::from_value(cached_value.value) {
-                Ok(v) => v,
-                Err(_) => {
-                    continue;
-                }
-            };
-            cached_timestamp = cached_value.created;
-            cached_uuid = cached_value.uuid;
-            break;
-        }
-    }
-    println!("cached total: {}", cached_total);
-    let transactions = get_user_transactions(store, user_uuid).await?;
-    let transactions = transactions
-        .into_iter()
-        .filter(|t| t.date.unwrap_or(NaiveDate::MAX) > cached_timestamp)
-        .collect::<Vec<_>>();
-
-    let sum = transactions
-        .iter()
-        .fold(cached_total, |acc, t| acc + t.cost);
-    if cached_total != sum {
-        add_cached_value("user", user_uuid, "total".to_string(), json!(sum), store).await?;
-        if cached_uuid.is_some() && cached_total != sum {
-            println!("removing cached data uuid: {}", cached_uuid.unwrap());
-            store
-                .remove_user_data(user_uuid, &cached_uuid.unwrap())
-                .await
-                .map_err(internal_server_error)?;
-        }
-    }
-    Ok(sum)
-}
-
-pub async fn get_family_spent(
-    store: &Store,
-    family_uuid: &Uuid,
-) -> Result<f64, (StatusCode, String)> {
-    let cache = get_family_cache(store, family_uuid).await?;
-    let mut cached_total: f64 = 0.0;
-    let mut cached_timestamp = NaiveDate::MIN;
-    let mut cached_uuid: Option<Uuid> = None;
-    for cached_value in cache {
-        if cached_value.name == "total" {
-            cached_total = match serde_json::from_value(cached_value.value) {
-                Ok(v) => v,
-                Err(_) => {
-                    continue;
-                }
-            };
-            cached_timestamp = cached_value.created;
-            cached_uuid = cached_value.uuid;
-            break;
-        }
-    }
-    let transactions = get_family_transactions(store, family_uuid).await?;
-    let transactions = transactions
-        .into_iter()
-        .filter(|t| t.date.unwrap_or(NaiveDate::MAX) > cached_timestamp)
-        .collect::<Vec<_>>();
-
-    let sum = transactions
-        .iter()
-        .fold(cached_total, |acc, t| acc + t.cost);
-    if cached_total != sum {
-        add_cached_value(
-            "family",
-            family_uuid,
-            "total".to_string(),
-            json!(sum),
-            store,
-        )
-        .await?;
-        if cached_uuid.is_some() {
-            store
-                .remove_family_data(family_uuid, &cached_uuid.unwrap())
-                .await
-                .map_err(internal_server_error)?;
-        }
-    }
-    Ok(sum)
 }
 
 pub async fn get_goals(store: &Store, user_uuid: &Uuid) -> Result<Vec<Goal>, (StatusCode, String)> {

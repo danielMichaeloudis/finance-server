@@ -22,8 +22,6 @@ pub(crate) fn api_routes() -> Router<AppState> {
         .route("/has_family", get(route_get_has_family))
         .route("/test_token", get(route_test_token))
         .route("/vendors", get(route_get_vendors_data))
-        .route("/total_spent", get(route_get_total_spent))
-        .route("/total_in_out", get(route_get_total_in_out))
         .route("/join_family", post(route_join_family))
         .route("/create_family", get(route_create_family))
         .route("/get_family_join_code", get(route_get_family_join_code))
