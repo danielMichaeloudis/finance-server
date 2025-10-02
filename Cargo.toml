@@ -2,7 +2,7 @@
 default-run = "ledgerly"
 edition = "2021"
 name = "ledgerly"
-version = "0.2.3"
+version = "0.3.0"
 
 [dependencies]
 aes-gcm = "0.10.3"
