@@ -1,5 +1,22 @@
+function updateCost() {
+    const prices = document.querySelectorAll(
+        "#transaction-items .add-item-row .transaction-item-price"
+    );
+    let totalCost = 0;
+    prices.forEach((price) => {
+        totalCost += parseFloat(price.value);
+    });
+    const transactionCost = document.getElementById("transaction-cost");
+    transactionCost.value = totalCost;
+    if (prices.length > 0) {
+        transactionCost.readOnly = true;
+    } else {
+        transactionCost.readOnly = false;
+    }
+}
+
 document.getElementById("add-item").onclick = () => {
-    const itemsDiv = document.getElementById("items");
+    const itemsDiv = document.getElementById("transaction-items");
 
     const row = document.createElement("div");
     row.className = "add-item-row";
@@ -8,7 +25,7 @@ document.getElementById("add-item").onclick = () => {
     itemName.type = "text";
     itemName.classList.add("styled-input");
     itemName.classList.add("item-input");
-    itemName.classList.add("item-name");
+    itemName.classList.add("transaction-item-name");
     itemName.placeholder = "Item Name *";
     row.appendChild(itemName);
 
@@ -16,15 +33,18 @@ document.getElementById("add-item").onclick = () => {
     itemPrice.type = "number";
     itemPrice.classList.add("styled-input");
     itemPrice.classList.add("item-input");
-    itemPrice.classList.add("item-price");
+    itemPrice.classList.add("transaction-item-price");
+    itemPrice.step = 0.01;
     itemPrice.placeholder = "Item Price *";
+    itemPrice.onchange = updateCost;
+
     row.appendChild(itemPrice);
 
     const itemBoughtFor = document.createElement("input");
     itemBoughtFor.type = "text";
     itemBoughtFor.classList.add("styled-input");
     itemBoughtFor.classList.add("item-input");
-    itemBoughtFor.classList.add("item-bought-for");
+    itemBoughtFor.classList.add("transaction-item-bought-for");
     itemBoughtFor.placeholder = "Bought For *";
     row.appendChild(itemBoughtFor);
 
@@ -41,6 +61,7 @@ document.getElementById("add-item").onclick = () => {
     };
     removeBtn.addEventListener("click", () => {
         itemsDiv.removeChild(row);
+        updateCost();
     });
 
     row.appendChild(removeBtn);

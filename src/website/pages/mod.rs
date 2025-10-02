@@ -50,7 +50,7 @@ pub async fn authorised_page(
         Err(_) => return html! {},
     };
 
-    let transaction_list: Vec<Transaction> = filter_transactions(&transaction_list, &query_params);
+    let transaction_list: Vec<Transaction> = filter_transactions(transaction_list, &query_params);
 
     let total_in = transaction_list
         .iter()
