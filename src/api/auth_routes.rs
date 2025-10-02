@@ -115,4 +115,5 @@ pub async fn reset_password(
     State(jwt_key_provider): State<JWTKeyProvider>,
     Json(passwords): Json<NewPassword>,
 ) {
+    todo!()
 }

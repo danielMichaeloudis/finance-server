@@ -1,29 +1,14 @@
-const total = document.getElementById("total");
-const incomming = document.getElementById("incomming");
-const outgoing = document.getElementById("outgoing");
-
 const token = getCookie("token");
-const total_spent_request = new Request("/api/total_in_out", {
-    method: "GET",
-    headers: { AUTHORIZATION: "Bearer " + token },
-});
-fetch(total_spent_request).then((res) => {
-    res.json().then((val) => {
-        total.innerHTML = "£" + val.total.toFixed(2);
-        incomming.innerHTML = "£" + val.incomming.toFixed(2);
-        outgoing.innerHTML = "£" + val.outgoing.toFixed(2);
-    });
-});
 
 const menuBtn = document.getElementById("menu-btn");
 const menuCtnr = document.getElementById("menu-container");
 const menuDrop = document.getElementById("menu-dropdown");
 
-menuBtn.onmouseover = (event) => {
+menuBtn.onmouseover = () => {
     menuDrop.classList.add("open");
 };
 
-menuCtnr.onmouseleave = (event) => {
+menuCtnr.onmouseleave = () => {
     menuDrop.classList.remove("open");
 };
 

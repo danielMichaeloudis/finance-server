@@ -1,19 +1,15 @@
 use axum::{
-    extract::{Path, State},
+    extract::State,
     http::{header, HeaderMap, HeaderValue, Response, StatusCode},
-    response::AppendHeaders,
     Json,
 };
-use serde::Serialize;
-use serde_json::{json, Value};
-use tokio_util::io::ReaderStream;
+use serde_json::json;
 
 use crate::{
     models::{Goal, Transaction, VendorData},
     utils::{
         encrypt_add_transactions, encrypt_and_add_transaction, get_all_transactions, get_goals,
-        get_total_in_out, get_total_spent, get_uuid_from_token, process_vendor_data, set_goal,
-        JWTKeyProvider, Store,
+        get_uuid_from_token, process_vendor_data, set_goal, JWTKeyProvider, Store,
     },
 };
 
@@ -55,24 +51,6 @@ pub async fn route_get_vendors_data(
 ) -> Result<Json<Vec<VendorData>>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
     Ok(Json(process_vendor_data(&store, &user_uuid).await?))
-}
-
-pub async fn route_get_total_in_out(
-    State(store): State<Store>,
-    State(jwt_key_provider): State<JWTKeyProvider>,
-    header_map: HeaderMap,
-) -> Result<Json<Value>, (StatusCode, String)> {
-    let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
-    Ok(Json(get_total_in_out(&store, &user_uuid).await?))
-}
-
-pub async fn route_get_total_spent(
-    State(store): State<Store>,
-    State(jwt_key_provider): State<JWTKeyProvider>,
-    header_map: HeaderMap,
-) -> Result<Json<f64>, (StatusCode, String)> {
-    let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
-    Ok(Json(get_total_spent(&store, &user_uuid).await?))
 }
 
 pub async fn route_set_goal(

@@ -31,7 +31,7 @@ pub fn filter_section(query_params: &Query<FilterParams>) -> Markup {
 }
 
 pub fn filter_transactions(
-    transactions: &[Transaction],
+    transactions: Vec<Transaction>,
     query_params: &Query<FilterParams>,
 ) -> Vec<Transaction> {
     let tags_vec: Option<Vec<&str>> = query_params
@@ -48,14 +48,13 @@ pub fn filter_transactions(
         .map(|bf_str| bf_str.split(",").collect());
 
     transactions
-        .iter()
-        .filter(|t| {
+        .into_iter()
+        .filter_map(|mut transaction| {
             let mut within_date_rng = true;
             let mut has_tags = true;
             let mut has_buyer = true;
-            let mut has_bought_for = true;
 
-            if let Some(t_time) = t.date {
+            if let Some(t_time) = transaction.date {
                 if let Some(start_date) = query_params.start {
                     if t_time < start_date {
                         within_date_rng = false;
@@ -71,30 +70,44 @@ pub fn filter_transactions(
             if let Some(tags) = &tags_vec {
                 has_tags = false;
                 for tag in tags {
-                    if t.tags.iter().any(|t| t.eq_ignore_ascii_case(tag)) {
+                    if transaction.tags.iter().any(|t| t.eq_ignore_ascii_case(tag)) {
                         has_tags = true;
                         break;
                     }
                 }
             }
             if let Some(buyers) = &buyer_vec {
-                has_buyer = buyers.iter().any(|b| b.eq_ignore_ascii_case(&t.buyer));
+                has_buyer = buyers
+                    .iter()
+                    .any(|b| b.eq_ignore_ascii_case(&transaction.buyer));
             }
-            if let Some(bought_for) = &bf_vec {
-                has_bought_for = false;
-                for b in bought_for {
-                    if t.items
-                        .iter()
-                        .any(|item| item.bought_for.eq_ignore_ascii_case(b))
-                    {
-                        has_bought_for = true;
-                        break;
+
+            match &bf_vec {
+                Some(bought_for) => {
+                    let filtered_items: Vec<crate::models::Item> = transaction
+                        .items
+                        .into_iter()
+                        .filter(|item| {
+                            bought_for
+                                .iter()
+                                .any(|b| b.eq_ignore_ascii_case(&item.bought_for))
+                        })
+                        .collect();
+                    let cost = filtered_items.iter().fold(0.0, |acc, i| acc + i.price);
+                    if !filtered_items.is_empty() {
+                        transaction.cost = cost;
+                        transaction.items = filtered_items;
+                        Some(transaction)
+                    } else {
+                        None
                     }
                 }
+                None => match has_buyer && has_tags && within_date_rng {
+                    true => Some(transaction),
+                    false => None,
+                },
             }
-            has_buyer && has_tags && has_bought_for && within_date_rng
         })
-        .cloned()
         .collect()
 }
 

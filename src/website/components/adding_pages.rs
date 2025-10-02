@@ -9,7 +9,7 @@ pub fn add_transaction() -> Markup {
             (
                 transaction_popup(
                     Some("New Transaction"),
-                    Some("/submit_transaction.js"),
+                    Some("/add_single_transaction.js"),
                     Some("add-single-transaction"),
                     None,
                 )

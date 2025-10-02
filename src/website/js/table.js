@@ -29,4 +29,4 @@ addContainer.onmouseleave = (event) => {
 };
 
 //default date picker to now
-document.getElementById("date").valueAsDate = new Date();
+document.getElementById("transaction-date").valueAsDate = new Date();

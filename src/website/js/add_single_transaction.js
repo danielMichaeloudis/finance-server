@@ -1,9 +1,9 @@
 document.getElementById("submit-add-single").onclick = () => {
-    const vendor = document.getElementById("vendor");
-    const buyer = document.getElementById("buyer");
-    const cost = document.getElementById("cost");
-    const tags = document.getElementById("tags");
-    const dat = document.getElementById("date");
+    const vendor = document.getElementById("transaction-vendor");
+    const buyer = document.getElementById("transaction-buyer");
+    const cost = document.getElementById("transaction-cost");
+    const tags = document.getElementById("transaction-tags");
+    const dat = document.getElementById("transaction-date");
 
     let transaction = {};
     transaction["vendor"] = vendor.value;
@@ -14,13 +14,15 @@ document.getElementById("submit-add-single").onclick = () => {
     });
     transaction["date"] = date.value;
 
-    const rows = document.querySelectorAll("#items .add-item-row");
+    const rows = document.querySelectorAll("#transaction-items .add-item-row");
     const items = [];
 
     rows.forEach((row) => {
-        const itemName = row.querySelector(".item-name").value;
-        const itemPrice = row.querySelector(".item-price").value;
-        const itemBoughtFor = row.querySelector(".item-bought-for").value;
+        const itemName = row.querySelector(".transaction-item-name").value;
+        const itemPrice = row.querySelector(".transaction-item-price").value;
+        const itemBoughtFor = row.querySelector(
+            ".transaction-item-bought-for"
+        ).value;
         items.push({
             name: itemName,
             price: parseFloat(itemPrice),

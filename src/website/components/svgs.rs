@@ -1,4 +1,4 @@
-use maud::{html, Markup, PreEscaped};
+use maud::{html, Markup};
 
 // Colour #848484
 // https://www.svgrepo.com/collection/dazzle-line-icons

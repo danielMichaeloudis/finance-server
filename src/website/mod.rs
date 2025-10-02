@@ -35,15 +35,15 @@ pub(crate) fn website_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/home",
-            get(async |req: Request| authorised_page(home_page(req).await)),
+            get(async |req: Request| authorised_page(home_page, req).await),
         )
         .route(
             "/",
-            get(async |req: Request| authorised_page(home_page(req).await)),
+            get(async |req: Request| authorised_page(home_page, req).await),
         )
         .route(
             "/table",
-            get(async |req: Request| authorised_page(table_page(req).await)),
+            get(async |req: Request| authorised_page(table_page, req).await),
         )
         .route(
             "/components/add_single_transaction",
