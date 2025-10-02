@@ -1,6 +1,7 @@
-const applyFilterBtn = document.getElementById("filter-button");
+const filterForm = document.getElementById("filter-form");
 
-applyFilterBtn.onclick = () => {
+filterForm.onsubmit = (event) => {
+    event.preventDefault();
     const startDate = document.getElementById("filter-start-date").value;
     const endDate = document.getElementById("filter-end-date").value;
     const buyer = document.getElementById("filter-buyer").value;
