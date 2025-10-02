@@ -18,7 +18,7 @@ pub fn filter_section(query_params: &Query<FilterParams>) -> Markup {
                     (dropdown_arrow_svg())
                 }
             }
-            div ."dropdown" {
+            form #"filter-form" ."dropdown" {
                 input #"filter-start-date" name="start-date" ."styled-input" type="date" placeholder="Start Date";
                 input #"filter-end-date" name="end-date" ."styled-input" type="date" placeholder="End Date";
                 input #"filter-buyer" name="buyer" ."styled-input" type="text" placeholder="Buyer" value=[&query_params.buyer];
@@ -31,7 +31,7 @@ pub fn filter_section(query_params: &Query<FilterParams>) -> Markup {
 }
 
 pub fn filter_transactions(
-    transactions: &Vec<Transaction>,
+    transactions: &[Transaction],
     query_params: &Query<FilterParams>,
 ) -> Vec<Transaction> {
     let tags_vec: Option<Vec<&str>> = query_params
@@ -71,19 +71,22 @@ pub fn filter_transactions(
             if let Some(tags) = &tags_vec {
                 has_tags = false;
                 for tag in tags {
-                    if t.tags.contains(&tag.to_string()) {
+                    if t.tags.iter().any(|t| t.eq_ignore_ascii_case(tag)) {
                         has_tags = true;
                         break;
                     }
                 }
             }
             if let Some(buyers) = &buyer_vec {
-                has_buyer = buyers.contains(&t.buyer.as_str());
+                has_buyer = buyers.iter().any(|b| b.eq_ignore_ascii_case(&t.buyer));
             }
             if let Some(bought_for) = &bf_vec {
                 has_bought_for = false;
                 for b in bought_for {
-                    if t.items.iter().any(|item| item.bought_for == *b) {
+                    if t.items
+                        .iter()
+                        .any(|item| item.bought_for.eq_ignore_ascii_case(b))
+                    {
                         has_bought_for = true;
                         break;
                     }
@@ -98,7 +101,7 @@ pub fn filter_transactions(
 fn filter_css() -> Css {
     Css::from(
         r#"
-        #filters div {
+        #filters div, #filters form {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
