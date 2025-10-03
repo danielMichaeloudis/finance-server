@@ -15,10 +15,21 @@ function updateCost() {
     }
 }
 
-document.getElementById("add-item").onclick = () => {
+document.getElementById("add-item").onclick = addItem;
+
+function addItem() {
     const itemsDiv = document.getElementById("transaction-items");
 
-    const row = document.createElement("div");
+    const row = document.createElement("form");
+    row.onsubmit = (event) => {
+        console.log("submit");
+        event.preventDefault();
+        addItem();
+    };
+    const sbmtBtn = document.createElement("input");
+    sbmtBtn.type = "submit";
+    sbmtBtn.style.display = "none";
+    row.appendChild(sbmtBtn);
     row.className = "add-item-row";
 
     const itemName = document.createElement("input");
@@ -59,11 +70,12 @@ document.getElementById("add-item").onclick = () => {
     removeBtn.onmouseleave = () => {
         removeBtn.style.backgroundColor = "#ffffff00";
     };
-    removeBtn.addEventListener("click", () => {
+    removeBtn.type = "button";
+    removeBtn.onclick = () => {
         itemsDiv.removeChild(row);
         updateCost();
-    });
+    };
 
     row.appendChild(removeBtn);
     itemsDiv.appendChild(row);
-};
+}
