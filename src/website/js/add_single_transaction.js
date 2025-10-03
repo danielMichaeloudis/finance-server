@@ -3,7 +3,7 @@ document.getElementById("submit-add-single").onclick = () => {
     const buyer = document.getElementById("transaction-buyer");
     const cost = document.getElementById("transaction-cost");
     const tags = document.getElementById("transaction-tags");
-    const dat = document.getElementById("transaction-date");
+    const date = document.getElementById("transaction-date");
 
     let transaction = {};
     transaction["vendor"] = vendor.value;
@@ -42,7 +42,7 @@ document.getElementById("submit-add-single").onclick = () => {
     }).then(
         (res) => {
             document.getElementById("transaction-form").reset();
-            const itemsDiv = document.getElementById("items");
+            const itemsDiv = document.getElementById("transaction-items");
             itemsDiv.innerHTML = "";
             location.reload();
         },
