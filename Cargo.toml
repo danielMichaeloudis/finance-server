@@ -2,7 +2,8 @@
 default-run = "ledgerly"
 edition = "2021"
 name = "ledgerly"
-version = "0.3.1"
+repository = "https://github.com/danielMichaeloudis/ledgerly"
+version = "0.3.2"
 
 [dependencies]
 aes-gcm = "0.10.3"
