@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     models::{EncryptedDataReturn, Goal, Transaction, VendorData},
     utils::encrypt_data,
@@ -14,8 +16,8 @@ pub async fn process_transaction_list(
     uuid: &Uuid,
     encrypted_transactions: &Vec<EncryptedDataReturn>,
     store: &Store,
-) -> Result<Vec<Transaction>, (StatusCode, String)> {
-    let mut decrypted_transactions = vec![];
+) -> Result<HashMap<Uuid, Transaction>, (StatusCode, String)> {
+    let mut decrypted_transactions = HashMap::new();
     for transaction in encrypted_transactions {
         let decrypted_value = decrypt_data(
             user_or_family,
@@ -28,7 +30,7 @@ pub async fn process_transaction_list(
             .take();
         let decrypted_transaction: Option<Transaction> = serde_json::from_value(decrypted_value)
             .unwrap_or_else(|_| {
-                println!("Invalid transaction uuid: {:?}", transaction.uuid);
+                println!("Invalid transaction. Uuid: {:?}", transaction.uuid);
                 None
             });
         let mut decrypted_transaction = match decrypted_transaction {
@@ -39,7 +41,11 @@ pub async fn process_transaction_list(
             Some(t) => Some(t),
             None => transaction.data_time.map(|d| d.date()),
         };
-        decrypted_transactions.push(decrypted_transaction);
+        decrypted_transaction.uuid = match decrypted_transaction.uuid {
+            Some(u) => Some(u),
+            None => Some(Uuid::new_v4()),
+        };
+        decrypted_transactions.insert(transaction.uuid, decrypted_transaction);
     }
     Ok(decrypted_transactions)
 }
@@ -64,7 +70,7 @@ pub async fn process_goals_list(
             None => continue,
             Some(v) => v,
         };
-        decrypted_goal.uuid = goal.uuid;
+        decrypted_goal.uuid = Some(goal.uuid);
         decrypted_goals.push(decrypted_goal)
     }
     Ok(decrypted_goals)
@@ -73,27 +79,14 @@ pub async fn process_goals_list(
 pub async fn get_all_transactions(
     store: &Store,
     user_uuid: &Uuid,
-) -> Result<Vec<Transaction>, (StatusCode, String)> {
-    let family_uuid = store
-        .get_family_uuid(user_uuid)
-        .await
-        .map_err(internal_server_error)?;
-
-    let user_data = get_user_transactions(store, user_uuid).await?;
-
-    if family_uuid.is_empty() {
-        return Ok(user_data);
-    }
-    let mut fam_data = get_family_transactions(store, &family_uuid[0]).await?; //TODO: allow multiple families
-    let mut data = user_data;
-    data.append(&mut fam_data);
-    Ok(data)
+) -> Result<HashMap<Uuid, Transaction>, (StatusCode, String)> {
+    get_user_transactions(store, user_uuid).await
 }
 
 pub async fn get_user_transactions(
     store: &Store,
     user_uuid: &Uuid,
-) -> Result<Vec<Transaction>, (StatusCode, String)> {
+) -> Result<HashMap<Uuid, Transaction>, (StatusCode, String)> {
     let encrypted_user_data = store
         .get_user_data(user_uuid)
         .await
@@ -106,7 +99,7 @@ pub async fn get_user_transactions(
 pub async fn get_family_transactions(
     store: &Store,
     family_uuid: &Uuid,
-) -> Result<Vec<Transaction>, (StatusCode, String)> {
+) -> Result<HashMap<Uuid, Transaction>, (StatusCode, String)> {
     let encrypted_fam_data = store
         .get_family_data(family_uuid)
         .await
@@ -116,10 +109,10 @@ pub async fn get_family_transactions(
     Ok(fam_data)
 }
 
-pub async fn encrypt_and_add_transaction(
+pub async fn encrypt_add_transaction(
     store: &Store,
     user_uuid: &Uuid,
-    transaction: Transaction,
+    transaction: &Transaction,
 ) -> Result<(), (StatusCode, String)> {
     let mut user_or_family = match transaction.input_for_family {
         Some(fam) => {
@@ -191,19 +184,19 @@ pub async fn encrypt_add_transactions(
             None => "user",
         };
         let uuid = if user_or_family != "family" {
-            user_uuid.to_owned()
+            user_uuid
         } else {
-            match family_uuid.is_none() {
-                false => *family_uuid.unwrap(),
-                true => {
+            match family_uuid {
+                Some(u) => u,
+                None => {
                     user_or_family = "user";
-                    user_uuid.to_owned()
+                    user_uuid
                 }
             }
         };
         let mut data = json!({"transaction": transaction});
         let _ = data["transaction"]["input_for_family"].take(); //not needed after adding
-        let transaction_data = encrypt_data(user_or_family, &uuid, data, store)
+        let transaction_data = encrypt_data(user_or_family, uuid, data, store)
             .await
             .map_err(internal_server_error)?;
         if user_or_family == "family" {
@@ -232,13 +225,36 @@ pub async fn encrypt_add_transactions(
     Ok(errors)
 }
 
+pub async fn encrypt_edit_transaction(
+    store: &Store,
+    user_uuid: &Uuid,
+    edited: &Transaction,
+) -> Result<(), (StatusCode, String)> {
+    let transactions = get_all_transactions(store, user_uuid).await?;
+    let found_uuid = match transactions.iter().find(|(_, t)| t.uuid == edited.uuid) {
+        Some((u, _)) => u,
+        None => return encrypt_add_transaction(store, user_uuid, edited).await,
+    };
+    store
+        .edit_user_data(
+            user_uuid,
+            found_uuid,
+            encrypt_data("user", user_uuid, json!(edited), store)
+                .await
+                .map_err(internal_server_error)?,
+        )
+        .await
+        .map_err(internal_server_error)?;
+    Ok(())
+}
+
 pub async fn process_vendor_data(
     store: &Store,
     user_uuid: &Uuid,
 ) -> Result<Vec<VendorData>, (StatusCode, String)> {
     let transactions = get_all_transactions(store, user_uuid).await?;
     let mut vendor_data: Vec<VendorData> = vec![];
-    for transaction in transactions {
+    for (_, transaction) in transactions {
         let pos = vendor_data
             .iter()
             .position(|v| v.vendor == transaction.vendor);

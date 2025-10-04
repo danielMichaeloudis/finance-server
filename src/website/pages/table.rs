@@ -9,8 +9,7 @@ use crate::{
     models::Transaction,
     website::{
         components::{
-            add_transaction, add_transaction_svg, adding_pages_css, dropdown_arrow_svg,
-            filter_section,
+            add_transaction, add_transaction_svg, dropdown_arrow_svg, edit_svg, filter_section,
         },
         pages::FilterParams,
     },
@@ -21,13 +20,11 @@ pub fn table_page(transaction_list: &[Transaction], query_params: &Query<FilterP
     html! {
         script src="/table.js" defer {}
         (table_css())
-        (adding_pages_css())
-        (add_transaction())
         div #"adding-popup" {}
         div #"add-container" {
             div #"add-btn"{"+"}
             div #"adding-btns" {
-                button #"add-transaction-btn" ."bg-1" popovertarget="add-single-transaction"{
+                button #"add-transaction-btn" ."bg-1"{
                     (add_transaction_svg())
                 }
             }
@@ -59,10 +56,13 @@ fn transaction_row(transaction: &Transaction) -> Markup {
     html! {
         div ."transaction-container"{
             div ."transaction-row"{
-                div .icon{
+                div ."uuid" {
+                    (transaction.uuid.expect("Returned transaction should always have uuid"))
+                }
+                div ."icon"{
                     span {}
                 }
-                div .vendor{
+                div ."vendor"{
                     p {(transaction.vendor)}
                 }
                 div ."tags" {
@@ -84,6 +84,9 @@ fn transaction_row(transaction: &Transaction) -> Markup {
                     @if !transaction.items.is_empty() {
                         (dropdown_arrow_svg())
                     }
+                }
+                button ."edit-btn" onclick="editTransaction(event)" {
+                    (edit_svg())
                 }
             }
             div ."dropdown"{
@@ -193,6 +196,9 @@ fn table_css() -> Css {
             max-height: inherit;
             margin: 0 0 0.5rem 0;
             padding: 0;
+            display: flex;   
+            justify-content: center; 
+            align-items: center;
         }
 
         #adding-btns button:hover {
@@ -301,6 +307,23 @@ fn table_css() -> Css {
         .pill:hover {
             background-color: rgba(255, 255, 255, 0.24);
         }
+
+        .edit-btn {
+            height: 35px;
+            width: 35px;
+            border-style: none;
+            border-radius: 50%;
+            background-color: #00000000;
+            transition: background-color 0.4s ease;
+            display: flex;   
+            justify-content: center;
+            align-items: center; 
+            margin: 1rem;
+        }
+
+        .edit-btn:hover {
+            background-color: rgba(255, 255, 255, 0.24);
+        }
         
         .expand-icon {
             display: inline-block;
@@ -311,6 +334,10 @@ fn table_css() -> Css {
 
         .transaction-container.open .expand-icon{
             transform: rotate(180deg);
+        }
+
+        .uuid {
+            display: none;
         }
 
     "#,

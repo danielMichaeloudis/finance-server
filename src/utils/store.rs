@@ -75,6 +75,7 @@ impl Store {
         .await
     }
 
+    #[deprecated]
     pub async fn get_family_data(
         &self,
         family_uuid: &Uuid,
@@ -111,6 +112,36 @@ impl Store {
         Ok(res)
     }
 
+    pub async fn edit_user_data(
+        &self,
+        user_uuid: &Uuid,
+        data_uuid: &Uuid,
+        data: Vec<u8>,
+    ) -> Result<Uuid, sqlx::Error> {
+        let time = Utc::now().naive_utc();
+        let mut tx = self.pool.begin().await?;
+        query!("delete from user_data where uuid=$1", data_uuid)
+            .execute(&mut *tx)
+            .await?;
+        let res = query_scalar!(
+            r#"--sql
+                insert into user_data (user_uuid, encrypted_data, data_time) 
+                values ($1, $2, $3)
+                returning uuid;
+            
+        "#,
+            user_uuid,
+            data,
+            time
+        )
+        .fetch_one(&mut *tx)
+        .await?;
+        tx.commit().await?;
+
+        Ok(res)
+    }
+
+    #[deprecated]
     pub async fn add_family_data(
         &self,
         family_uuid: &Uuid,
@@ -151,6 +182,7 @@ impl Store {
         Ok(())
     }
 
+    #[deprecated]
     pub async fn remove_family_data(
         &self,
         family_uuid: &Uuid,

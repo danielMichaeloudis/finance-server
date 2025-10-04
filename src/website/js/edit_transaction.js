@@ -1,4 +1,6 @@
-document.getElementById("submit-transaction").onclick = () => {
+const submit = document.getElementById("submit-transaction");
+submit.onclick = () => {
+    const uuid = document.getElementById("transaction-uuid");
     const vendor = document.getElementById("transaction-vendor");
     const buyer = document.getElementById("transaction-buyer");
     const cost = document.getElementById("transaction-cost");
@@ -6,6 +8,7 @@ document.getElementById("submit-transaction").onclick = () => {
     const date = document.getElementById("transaction-date");
 
     let transaction = {};
+    transaction["uuid"] = uuid.value;
     transaction["vendor"] = vendor.value;
     transaction["buyer"] = buyer.value;
     transaction["cost"] = parseFloat(cost.value);
@@ -32,7 +35,7 @@ document.getElementById("submit-transaction").onclick = () => {
 
     transaction["items"] = items;
 
-    fetch("/api/transactions_many", {
+    fetch("/api/edit_transaction", {
         method: "POST",
         body: JSON.stringify([transaction]),
         headers: {

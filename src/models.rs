@@ -30,7 +30,7 @@ pub struct Claims {
 
 #[derive(Serialize, Clone, Deserialize, Debug)]
 pub(crate) struct EncryptedDataReturn {
-    pub uuid: Option<Uuid>,
+    pub uuid: Uuid,
     pub owner_uuid: Uuid,
     pub encrypted_data: Vec<u8>,
     pub data_time: Option<NaiveDateTime>,
@@ -53,6 +53,7 @@ pub(crate) struct Item {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Transaction {
+    pub uuid: Option<Uuid>,
     pub input_for_family: Option<bool>,
     pub vendor: String,
     pub buyer: String,

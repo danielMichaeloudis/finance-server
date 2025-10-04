@@ -28,4 +28,5 @@ pub(crate) fn api_routes() -> Router<AppState> {
         .route("/goals", get(route_get_goals).post(route_set_goal))
         .route("/transactions_many", post(route_add_many_transactions))
         .route("/export", get(route_export))
+        .route("/edit", post(route_edit_transaction))
 }

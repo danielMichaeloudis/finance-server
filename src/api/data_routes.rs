@@ -4,12 +4,14 @@ use axum::{
     Json,
 };
 use serde_json::json;
+use uuid::Uuid;
 
 use crate::{
     models::{Goal, Transaction, VendorData},
     utils::{
-        encrypt_add_transactions, encrypt_and_add_transaction, get_all_transactions, get_goals,
-        get_uuid_from_token, process_vendor_data, set_goal, JWTKeyProvider, Store,
+        encrypt_add_transaction, encrypt_add_transactions, encrypt_edit_transaction,
+        get_all_transactions, get_goals, get_uuid_from_token, process_vendor_data, set_goal,
+        JWTKeyProvider, Store,
     },
 };
 
@@ -20,8 +22,21 @@ pub async fn route_add_transaction(
     Json(transaction): Json<Transaction>,
 ) -> Result<Json<Vec<Transaction>>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
-    encrypt_and_add_transaction(&store, &user_uuid, transaction).await?;
-    Ok(Json(get_all_transactions(&store, &user_uuid).await?))
+    let transaction = match transaction.uuid {
+        Some(_) => transaction,
+        None => {
+            let mut t = transaction;
+            t.uuid = Some(Uuid::new_v4());
+            t
+        }
+    };
+    encrypt_add_transaction(&store, &user_uuid, &transaction).await?;
+    Ok(Json(
+        get_all_transactions(&store, &user_uuid)
+            .await?
+            .into_values()
+            .collect(),
+    ))
 }
 
 pub async fn route_add_many_transactions(
@@ -31,8 +46,24 @@ pub async fn route_add_many_transactions(
     Json(transactions): Json<Vec<Transaction>>,
 ) -> Result<Json<Vec<Transaction>>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
+    let transactions = transactions
+        .into_iter()
+        .map(|transaction| match transaction.uuid {
+            Some(_) => transaction,
+            None => {
+                let mut t = transaction;
+                t.uuid = Some(Uuid::new_v4());
+                t
+            }
+        })
+        .collect();
     encrypt_add_transactions(&store, &user_uuid, transactions).await?;
-    Ok(Json(get_all_transactions(&store, &user_uuid).await?))
+    Ok(Json(
+        get_all_transactions(&store, &user_uuid)
+            .await?
+            .into_values()
+            .collect(),
+    ))
 }
 
 pub async fn route_get_all_transactions(
@@ -41,7 +72,28 @@ pub async fn route_get_all_transactions(
     header_map: HeaderMap,
 ) -> Result<Json<Vec<Transaction>>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
-    Ok(Json(get_all_transactions(&store, &user_uuid).await?))
+    Ok(Json(
+        get_all_transactions(&store, &user_uuid)
+            .await?
+            .into_values()
+            .collect(),
+    ))
+}
+
+pub async fn route_edit_transaction(
+    State(store): State<Store>,
+    State(jwt_key_provider): State<JWTKeyProvider>,
+    header_map: HeaderMap,
+    Json(transaction): Json<Transaction>,
+) -> Result<Json<Vec<Transaction>>, (StatusCode, String)> {
+    let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
+    encrypt_edit_transaction(&store, &user_uuid, &transaction).await?;
+    Ok(Json(
+        get_all_transactions(&store, &user_uuid)
+            .await?
+            .into_values()
+            .collect(),
+    ))
 }
 
 pub async fn route_get_vendors_data(
@@ -78,7 +130,11 @@ pub async fn route_export(
     header_map: HeaderMap,
 ) -> Result<Response<String>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
-    let transactions = json!(get_all_transactions(&store, &user_uuid).await?).to_string();
+    let transactions = json!(get_all_transactions(&store, &user_uuid)
+        .await?
+        .into_values()
+        .collect::<Vec<_>>())
+    .to_string();
     let mut res = Response::new(transactions);
     res.headers_mut().insert(
         header::CONTENT_TYPE,
