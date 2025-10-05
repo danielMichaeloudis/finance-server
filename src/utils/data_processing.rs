@@ -43,7 +43,7 @@ pub async fn process_transaction_list(
         };
         decrypted_transaction.uuid = match decrypted_transaction.uuid {
             Some(u) => Some(u),
-            None => Some(Uuid::new_v4()),
+            None => None,
         };
         decrypted_transactions.insert(transaction.uuid, decrypted_transaction);
     }
@@ -96,24 +96,13 @@ pub async fn get_user_transactions(
     Ok(user_data)
 }
 
-pub async fn get_family_transactions(
-    store: &Store,
-    family_uuid: &Uuid,
-) -> Result<HashMap<Uuid, Transaction>, (StatusCode, String)> {
-    let encrypted_fam_data = store
-        .get_family_data(family_uuid)
-        .await
-        .map_err(internal_server_error)?;
-    let fam_data =
-        process_transaction_list("family", family_uuid, &encrypted_fam_data, store).await?;
-    Ok(fam_data)
-}
-
 pub async fn encrypt_add_transaction(
     store: &Store,
     user_uuid: &Uuid,
-    transaction: &Transaction,
+    transaction: Transaction,
 ) -> Result<(), (StatusCode, String)> {
+    let mut transaction = transaction;
+    transaction.uuid = Some(Uuid::new_v4());
     let mut user_or_family = match transaction.input_for_family {
         Some(fam) => {
             if fam {
@@ -144,17 +133,11 @@ pub async fn encrypt_add_transaction(
     let transaction_data = encrypt_data(user_or_family, &uuid, data, store)
         .await
         .map_err(internal_server_error)?;
-    if user_or_family == "family" {
-        store
-            .add_family_data(&uuid, transaction_data)
-            .await
-            .map_err(internal_server_error)?;
-    } else {
-        store
-            .add_user_data(&uuid, transaction_data)
-            .await
-            .map_err(internal_server_error)?;
-    }
+    store
+        .add_user_data(&uuid, transaction_data)
+        .await
+        .map_err(internal_server_error)?;
+
     Ok(())
 }
 
@@ -170,9 +153,9 @@ pub async fn encrypt_add_transactions(
     let family_uuid = uuid_res.first();
 
     let mut user_transactions = vec![];
-    let mut family_transactions = vec![];
 
-    for transaction in transactions {
+    for mut transaction in transactions {
+        transaction.uuid = Some(Uuid::new_v4());
         let mut user_or_family = match transaction.input_for_family {
             Some(fam) => {
                 if fam {
@@ -199,11 +182,7 @@ pub async fn encrypt_add_transactions(
         let transaction_data = encrypt_data(user_or_family, uuid, data, store)
             .await
             .map_err(internal_server_error)?;
-        if user_or_family == "family" {
-            family_transactions.push(transaction_data);
-        } else {
-            user_transactions.push(transaction_data);
-        }
+        user_transactions.push(transaction_data);
     }
     let mut errors = vec![];
     //TODO need to make more safe if errors occur
@@ -213,36 +192,28 @@ pub async fn encrypt_add_transactions(
             .await
             .map_err(|e| errors.push(e.to_string()));
     }
-    for transaction in family_transactions {
-        let _ = store
-            .add_family_data(
-                family_uuid.expect("No transactions should be pushed here if this is none"),
-                transaction,
-            )
-            .await
-            .map_err(|e| errors.push(e.to_string()));
-    }
     Ok(errors)
 }
 
 pub async fn encrypt_edit_transaction(
     store: &Store,
     user_uuid: &Uuid,
-    edited: &Transaction,
+    edited: Transaction,
 ) -> Result<(), (StatusCode, String)> {
     let transactions = get_all_transactions(store, user_uuid).await?;
     let found_uuid = match transactions.iter().find(|(_, t)| t.uuid == edited.uuid) {
         Some((u, _)) => u,
         None => return encrypt_add_transaction(store, user_uuid, edited).await,
     };
+    println!("Editing transaction: {edited:?}\nUser: {user_uuid:?}");
+
+    let mut data = json!({"transaction": edited});
+    let _ = data["transaction"]["input_for_family"].take(); //not needed after adding
+    let encrypted_data = encrypt_data("user", user_uuid, data, store)
+        .await
+        .map_err(internal_server_error)?;
     store
-        .edit_user_data(
-            user_uuid,
-            found_uuid,
-            encrypt_data("user", user_uuid, json!(edited), store)
-                .await
-                .map_err(internal_server_error)?,
-        )
+        .edit_user_data(user_uuid, found_uuid, encrypted_data)
         .await
         .map_err(internal_server_error)?;
     Ok(())

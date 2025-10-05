@@ -42,6 +42,7 @@ addTransactionBtn.onclick = () => {
                 var els = document.getElementsByClassName(
                     "added-by-add-transaction-btn"
                 );
+                console.log(els);
 
                 while (els[0]) {
                     els[0].parentNode.removeChild(els[0]);
@@ -54,18 +55,11 @@ addTransactionBtn.onclick = () => {
 };
 
 function editTransaction(event) {
+    event.preventDefault();
     const row = event.currentTarget.closest(".transaction-row");
-    let transaction = {};
-    transaction["uuid"] = row.getElementsByClassName("uuid")[0].innerText;
-    transaction["vendor"] = row.getElementsByClassName("vendor")[0].innerText;
-    transaction["buyer"] = row.getElementsByClassName("buyer")[0].innerText;
-    transaction["cost"] = row.getElementsByClassName("cost")[0].innerText;
-    transaction["tags"] = row.getElementsByClassName("tags")[0].innerText;
-    transaction["date"] = null; //row.getElementsByClassName("date")[0].innerText;
-    transaction["items"] = []; //row.getElementsByClassName("items")[0].innerText;
     fetch("/components/edit_transaction", {
         method: "POST",
-        body: JSON.stringify(transaction),
+        body: JSON.stringify(row.getElementsByClassName("uuid")[0].innerText),
         headers: {
             authorization: "Bearer " + getCookie("token"),
             "Content-Type": "application/json",
@@ -78,11 +72,11 @@ function editTransaction(event) {
                 var els = document.getElementsByClassName(
                     "added-by-transaction"
                 );
+                console.log(els);
 
                 while (els[0]) {
                     els[0].parentNode.removeChild(els[0]);
                 }
             };
-            document.getElementById("edit-transaction").classList.add("shown");
         });
 }

@@ -74,7 +74,7 @@ pub fn item_row(Json(item): Json<Option<Item>>) -> Markup {
         None => (None, None, None),
     };
     html! {
-        form ."add-item-row" onsubmit="event.preventDefault();addItem();" {
+        div ."add-item-row" onsubmit="event.preventDefault();addItem();" {
             input type="submit" style="display:none;";
             input type="text" ."styled-input" ."item-input" ."transaction-item-name" placeholder="Name *" value=[name];
             input type="number" ."styled-input" ."item-input" ."transaction-item-price" placeholder="Price *" step="0.01" onchange="updateCost()" value=[price];

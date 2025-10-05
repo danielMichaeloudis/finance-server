@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use axum::{
-    extract::State,
+    extract::{Path, State},
     http::{header, HeaderMap, HeaderValue, Response, StatusCode},
     Json,
 };
@@ -10,8 +12,8 @@ use crate::{
     models::{Goal, Transaction, VendorData},
     utils::{
         encrypt_add_transaction, encrypt_add_transactions, encrypt_edit_transaction,
-        get_all_transactions, get_goals, get_uuid_from_token, process_vendor_data, set_goal,
-        JWTKeyProvider, Store,
+        get_all_transactions, get_goals, get_uuid_from_token, internal_server_error,
+        process_vendor_data, set_goal, JWTKeyProvider, Store,
     },
 };
 
@@ -30,7 +32,7 @@ pub async fn route_add_transaction(
             t
         }
     };
-    encrypt_add_transaction(&store, &user_uuid, &transaction).await?;
+    encrypt_add_transaction(&store, &user_uuid, transaction).await?;
     Ok(Json(
         get_all_transactions(&store, &user_uuid)
             .await?
@@ -70,14 +72,25 @@ pub async fn route_get_all_transactions(
     State(store): State<Store>,
     State(jwt_key_provider): State<JWTKeyProvider>,
     header_map: HeaderMap,
-) -> Result<Json<Vec<Transaction>>, (StatusCode, String)> {
+) -> Result<Json<HashMap<Uuid, Transaction>>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
-    Ok(Json(
-        get_all_transactions(&store, &user_uuid)
-            .await?
-            .into_values()
-            .collect(),
-    ))
+    Ok(Json(get_all_transactions(&store, &user_uuid).await?))
+}
+
+pub async fn route_get_transaction_by_uuid(
+    State(store): State<Store>,
+    State(jwt_key_provider): State<JWTKeyProvider>,
+    header_map: HeaderMap,
+    Path(uuid): Path<Uuid>,
+) -> Result<Json<Transaction>, (StatusCode, String)> {
+    let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
+    Ok(Json(match get_all_transactions(&store, &user_uuid).await {
+        Ok(t) => t
+            .get(&uuid)
+            .ok_or_else(|| internal_server_error("Transaction Does Not Exist"))
+            .map(|t| t.to_owned()),
+        Err(e) => Err(e),
+    }?))
 }
 
 pub async fn route_edit_transaction(
@@ -87,7 +100,7 @@ pub async fn route_edit_transaction(
     Json(transaction): Json<Transaction>,
 ) -> Result<Json<Vec<Transaction>>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
-    encrypt_edit_transaction(&store, &user_uuid, &transaction).await?;
+    encrypt_edit_transaction(&store, &user_uuid, transaction).await?;
     Ok(Json(
         get_all_transactions(&store, &user_uuid)
             .await?

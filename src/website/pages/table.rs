@@ -1,21 +1,23 @@
-use std::collections::VecDeque;
+use std::collections::HashMap;
 
 use axum::extract::Query;
 use chrono::{Datelike, Month, NaiveDate};
 use css_helper::Css;
 use maud::{html, Markup};
+use uuid::Uuid;
 
 use crate::{
     models::Transaction,
     website::{
-        components::{
-            add_transaction, add_transaction_svg, dropdown_arrow_svg, edit_svg, filter_section,
-        },
+        components::{add_transaction_svg, dropdown_arrow_svg, edit_svg, filter_section},
         pages::FilterParams,
     },
 };
 
-pub fn table_page(transaction_list: &[Transaction], query_params: &Query<FilterParams>) -> Markup {
+pub fn table_page(
+    transaction_list: &HashMap<Uuid, Transaction>,
+    query_params: &Query<FilterParams>,
+) -> Markup {
     let dates = get_days_data(transaction_list);
     html! {
         script src="/table.js" defer {}
@@ -31,19 +33,18 @@ pub fn table_page(transaction_list: &[Transaction], query_params: &Query<FilterP
         }
         (filter_section(query_params))
         div ."bg-1"{
-            @for (date, mut transactions) in dates {
+            @for (date, transactions) in dates {
                 ."header-row" {
                     h5 {(format_date(&date))}
-                    h5 {(format!("£{:.2}",transactions.iter().fold(0.0, |acc, t| acc + t.cost)))}
+                    h5 {(format!("£{:.2}",transactions.iter().fold(0.0, |acc, (_, t)| acc + t.cost)))}
                 }
                 hr;
                 ul {
-                    @if let Some(transaction) = transactions.pop_front() {
-                        (transaction_row(&transaction))
-                    }
-                    @for transaction in transactions {
+                    @for (i, (uuid, transaction)) in transactions.iter().enumerate() {
+                        @if i != 0 {
                         li ."transaction-divider" {}
-                        (transaction_row(&transaction))
+                        }
+                        (transaction_row(&uuid, &transaction))
                     }
                 }
                 hr;
@@ -52,12 +53,12 @@ pub fn table_page(transaction_list: &[Transaction], query_params: &Query<FilterP
     }
 }
 
-fn transaction_row(transaction: &Transaction) -> Markup {
+fn transaction_row(uuid: &Uuid, transaction: &Transaction) -> Markup {
     html! {
         div ."transaction-container"{
             div ."transaction-row"{
                 div ."uuid" {
-                    (transaction.uuid.expect("Returned transaction should always have uuid"))
+                    (uuid)
                 }
                 div ."icon"{
                     span {}
@@ -117,13 +118,15 @@ fn format_date(date: &NaiveDate) -> String {
     )
 }
 
-fn get_days_data(transactions: &[Transaction]) -> Vec<(NaiveDate, VecDeque<Transaction>)> {
+fn get_days_data(
+    transactions: &HashMap<Uuid, Transaction>,
+) -> Vec<(NaiveDate, HashMap<Uuid, Transaction>)> {
     if transactions.is_empty() {
         return vec![];
     }
     let mut t = transactions.iter().fold(
         vec![],
-        |mut acc: Vec<(NaiveDate, VecDeque<Transaction>)>, transaction| {
+        |mut acc: Vec<(NaiveDate, HashMap<Uuid, Transaction>)>, (uuid, transaction)| {
             let date = match transaction.date {
                 Some(d) => d,
                 None => return acc,
@@ -132,11 +135,11 @@ fn get_days_data(transactions: &[Transaction]) -> Vec<(NaiveDate, VecDeque<Trans
             let date_entry = match date_entry {
                 Some(d) => d,
                 None => {
-                    acc.push((date, VecDeque::from(vec![])));
+                    acc.push((date, HashMap::new()));
                     acc.last_mut().unwrap()
                 }
             };
-            date_entry.1.push_back(transaction.clone());
+            date_entry.1.insert(*uuid, transaction.clone());
             acc
         },
     );
@@ -319,6 +322,11 @@ fn table_css() -> Css {
             justify-content: center;
             align-items: center; 
             margin: 1rem;
+            opacity: 0;
+        }
+
+        .transaction-row:hover .edit-btn {
+            opacity: 100%;
         }
 
         .edit-btn:hover {

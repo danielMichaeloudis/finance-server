@@ -31,3 +31,11 @@ function addItem() {
             addHTML(html, null, document.getElementById("transaction-items"));
         });
 }
+document
+    .getElementById("transaction-items")
+    .addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && event.target.closest(".add-item-row")) {
+            event.preventDefault();
+            addItem();
+        }
+    });

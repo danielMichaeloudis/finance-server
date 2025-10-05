@@ -1,5 +1,4 @@
-const submit = document.getElementById("submit-transaction");
-submit.onclick = () => {
+document.getElementById("submit-transaction").onclick = () => {
     const uuid = document.getElementById("transaction-uuid");
     const vendor = document.getElementById("transaction-vendor");
     const buyer = document.getElementById("transaction-buyer");
@@ -37,7 +36,7 @@ submit.onclick = () => {
 
     fetch("/api/edit_transaction", {
         method: "POST",
-        body: JSON.stringify([transaction]),
+        body: JSON.stringify(transaction),
         headers: {
             authorization: "Bearer " + getCookie("token"),
             "Content-Type": "application/json",

@@ -1,6 +1,9 @@
+use std::collections::HashMap;
+
 use axum::extract::Query;
 use css_helper::Css;
 use maud::{html, Markup};
+use uuid::Uuid;
 
 use crate::{
     models::Transaction,
@@ -31,9 +34,9 @@ pub fn filter_section(query_params: &Query<FilterParams>) -> Markup {
 }
 
 pub fn filter_transactions(
-    transactions: Vec<Transaction>,
+    transactions: HashMap<Uuid, Transaction>,
     query_params: &Query<FilterParams>,
-) -> Vec<Transaction> {
+) -> HashMap<Uuid, Transaction> {
     let tags_vec: Option<Vec<&str>> = query_params
         .tags
         .as_ref()
@@ -49,7 +52,7 @@ pub fn filter_transactions(
 
     transactions
         .into_iter()
-        .filter_map(|mut transaction| {
+        .filter_map(|(uuid, mut transaction)| {
             let mut within_date_rng = true;
             let mut has_tags = true;
             let mut has_buyer = true;
@@ -97,13 +100,13 @@ pub fn filter_transactions(
                     if !filtered_items.is_empty() {
                         transaction.cost = cost;
                         transaction.items = filtered_items;
-                        Some(transaction)
+                        Some((uuid, transaction))
                     } else {
                         None
                     }
                 }
                 None => match has_buyer && has_tags && within_date_rng {
-                    true => Some(transaction),
+                    true => Some((uuid, transaction)),
                     false => None,
                 },
             }

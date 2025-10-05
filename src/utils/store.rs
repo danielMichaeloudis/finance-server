@@ -75,21 +75,6 @@ impl Store {
         .await
     }
 
-    #[deprecated]
-    pub async fn get_family_data(
-        &self,
-        family_uuid: &Uuid,
-    ) -> Result<Vec<EncryptedDataReturn>, sqlx::Error> {
-        query_as!(
-            EncryptedDataReturn,
-            r#"--sql
-            select uuid, family_uuid "owner_uuid", encrypted_data, data_time from public.family_data where family_uuid = $1
-        "#, family_uuid
-        )
-        .fetch_all(&self.pool)
-        .await
-    }
-
     pub async fn add_user_data(
         &self,
         user_uuid: &Uuid,
@@ -120,9 +105,11 @@ impl Store {
     ) -> Result<Uuid, sqlx::Error> {
         let time = Utc::now().naive_utc();
         let mut tx = self.pool.begin().await?;
+        println!("Deleting transaction");
         query!("delete from user_data where uuid=$1", data_uuid)
             .execute(&mut *tx)
             .await?;
+        println!("Inserting new transaction");
         let res = query_scalar!(
             r#"--sql
                 insert into user_data (user_uuid, encrypted_data, data_time) 
@@ -137,30 +124,8 @@ impl Store {
         .fetch_one(&mut *tx)
         .await?;
         tx.commit().await?;
+        println!("Committed. Uuid: {res:?}");
 
-        Ok(res)
-    }
-
-    #[deprecated]
-    pub async fn add_family_data(
-        &self,
-        family_uuid: &Uuid,
-        transaction_data: Vec<u8>,
-    ) -> Result<Uuid, sqlx::Error> {
-        let time = Utc::now().naive_utc();
-        let res = query_scalar!(
-            r#"--sql
-                insert into family_data (family_uuid, encrypted_data, data_time) 
-                values ($1, $2, $3)
-                returning family_uuid
-            
-        "#,
-            family_uuid,
-            transaction_data,
-            time
-        )
-        .fetch_one(&self.pool)
-        .await?;
         Ok(res)
     }
 
@@ -176,25 +141,6 @@ impl Store {
         "#,
             data_uuid,
             user_uuid
-        )
-        .execute(&self.pool)
-        .await?;
-        Ok(())
-    }
-
-    #[deprecated]
-    pub async fn remove_family_data(
-        &self,
-        family_uuid: &Uuid,
-        data_uuid: &Uuid,
-    ) -> Result<(), sqlx::Error> {
-        let _res = query!(
-            r#"--sql
-        delete from family_data where
-        uuid = $1 and family_uuid = $2
-        "#,
-            data_uuid,
-            family_uuid
         )
         .execute(&self.pool)
         .await?;
