@@ -14,7 +14,7 @@ pub async fn edit_transaction(headers: HeaderMap, Json(transaction_uuid): Json<U
                 .get_transaction_by_uuid(&token, transaction_uuid)
                 .await
                 .ok()
-                .map(|t| vec![t]),
+                .map(|t| vec![(transaction_uuid, t)]),
             None => None,
         },
         Err(_) => None,

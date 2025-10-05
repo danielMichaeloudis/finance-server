@@ -1,6 +1,7 @@
 use axum::Json;
 use css_helper::Css;
 use maud::{html, Markup};
+use uuid::Uuid;
 
 use crate::{
     models::{Item, Transaction},
@@ -10,7 +11,7 @@ use crate::{
 pub fn transaction_popup(
     title: Option<&str>,
     js_with_submit: Option<&str>,
-    transactions: Option<&[Transaction]>,
+    transactions: Option<&[(Uuid, Transaction)]>,
 ) -> Markup {
     let title = title.unwrap_or("New Transaction");
     let js_with_submit = match js_with_submit {
@@ -28,13 +29,13 @@ pub fn transaction_popup(
 
     if let Some(transactions) = transactions {
         if transactions.len() == 1 {
-            uuid = Some(&transactions[0].uuid);
-            vendor = Some(&transactions[0].vendor);
-            buyer = Some(&transactions[0].buyer);
-            cost = Some(&transactions[0].cost);
-            tags = Some(&transactions[0].tags);
-            date = Some(&transactions[0].date);
-            items = Some(&transactions[0].items);
+            uuid = Some(&transactions[0].0);
+            vendor = Some(&transactions[0].1.vendor);
+            buyer = Some(&transactions[0].1.buyer);
+            cost = Some(&transactions[0].1.cost);
+            tags = Some(&transactions[0].1.tags);
+            date = Some(&transactions[0].1.date);
+            items = Some(&transactions[0].1.items);
         }
     }
 
@@ -46,7 +47,7 @@ pub fn transaction_popup(
             h1 {(title)}
             button #"close-transaction" ."close-btn" {(close_svg("40px", "40px"))}
             form #"transaction-form" {
-                input #"transaction-uuid" ."uuid" readonly value=[uuid.map(|u| u.expect("Must have Uuid"))];
+                input #"transaction-uuid" ."uuid" readonly value=[uuid];
                 input #"transaction-vendor" name="vendor" ."styled-input" type="text" placeholder="Vendor *" value=[vendor];
                 input #"transaction-buyer" name="buyer" ."styled-input" type="text" placeholder="Buyer *" value=[buyer];
                 input #"transaction-cost" name="cost" ."styled-input" type="number" step="0.01" placeholder="Cost *" value=[cost];
@@ -62,7 +63,9 @@ pub fn transaction_popup(
                 }
                 button #"add-item" ."styled-button" type="button" {"Add Item"}
                 button #"submit-transaction" ."styled-input"."styled-button" type="button" {"Submit Transaction"};
-                button #"remove-transaction" ."styled-input"."styled-button" type="button" {"Remove Transaction"};
+                @if transactions.is_some() {
+                    button #"remove-transaction" ."styled-input"."styled-button" type="button" {"Remove Transaction"};
+                }
             }
         }
     }
@@ -175,6 +178,14 @@ fn transaction_css() -> Css {
 
         .remove-item-btn:hover {
             background-color: #ffffff10
+        }
+
+        #remove-transaction {
+            background-color: #4b1515;
+        }
+
+        #remove-transaction:hover {
+            background-color: #401111ff;
         }
     "#,
     )

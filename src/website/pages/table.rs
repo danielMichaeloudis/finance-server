@@ -15,10 +15,10 @@ use crate::{
 };
 
 pub fn table_page(
-    transaction_list: &HashMap<Uuid, Transaction>,
+    transaction_map: &HashMap<Uuid, Transaction>,
     query_params: &Query<FilterParams>,
 ) -> Markup {
-    let dates = get_days_data(transaction_list);
+    let dates = get_days_data(transaction_map);
     html! {
         script src="/table.js" defer {}
         (table_css())
@@ -325,7 +325,7 @@ fn table_css() -> Css {
             opacity: 0;
         }
 
-        .transaction-row:hover .edit-btn {
+        .transaction-container:hover * .edit-btn {
             opacity: 100%;
         }
 

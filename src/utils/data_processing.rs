@@ -41,10 +41,6 @@ pub async fn process_transaction_list(
             Some(t) => Some(t),
             None => transaction.data_time.map(|d| d.date()),
         };
-        decrypted_transaction.uuid = match decrypted_transaction.uuid {
-            Some(u) => Some(u),
-            None => None,
-        };
         decrypted_transactions.insert(transaction.uuid, decrypted_transaction);
     }
     Ok(decrypted_transactions)
@@ -101,8 +97,6 @@ pub async fn encrypt_add_transaction(
     user_uuid: &Uuid,
     transaction: Transaction,
 ) -> Result<(), (StatusCode, String)> {
-    let mut transaction = transaction;
-    transaction.uuid = Some(Uuid::new_v4());
     let mut user_or_family = match transaction.input_for_family {
         Some(fam) => {
             if fam {
@@ -154,8 +148,7 @@ pub async fn encrypt_add_transactions(
 
     let mut user_transactions = vec![];
 
-    for mut transaction in transactions {
-        transaction.uuid = Some(Uuid::new_v4());
+    for transaction in transactions {
         let mut user_or_family = match transaction.input_for_family {
             Some(fam) => {
                 if fam {
@@ -200,20 +193,28 @@ pub async fn encrypt_edit_transaction(
     user_uuid: &Uuid,
     edited: Transaction,
 ) -> Result<(), (StatusCode, String)> {
-    let transactions = get_all_transactions(store, user_uuid).await?;
-    let found_uuid = match transactions.iter().find(|(_, t)| t.uuid == edited.uuid) {
-        Some((u, _)) => u,
-        None => return encrypt_add_transaction(store, user_uuid, edited).await,
-    };
-    println!("Editing transaction: {edited:?}\nUser: {user_uuid:?}");
+    let data_uuid = edited.uuid.unwrap();
 
     let mut data = json!({"transaction": edited});
     let _ = data["transaction"]["input_for_family"].take(); //not needed after adding
+    let _ = data["transaction"]["uuid"].take();
     let encrypted_data = encrypt_data("user", user_uuid, data, store)
         .await
         .map_err(internal_server_error)?;
     store
-        .edit_user_data(user_uuid, found_uuid, encrypted_data)
+        .edit_user_data(user_uuid, &data_uuid, encrypted_data)
+        .await
+        .map_err(internal_server_error)?;
+    Ok(())
+}
+
+pub async fn remove_transaction(
+    store: &Store,
+    user_uuid: &Uuid,
+    uuid: &Uuid,
+) -> Result<(), (StatusCode, String)> {
+    store
+        .remove_user_data(user_uuid, uuid)
         .await
         .map_err(internal_server_error)?;
     Ok(())

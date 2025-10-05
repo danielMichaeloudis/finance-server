@@ -18,6 +18,8 @@ pub(crate) fn api_routes() -> Router<AppState> {
             get(route_get_all_transactions).post(route_add_transaction),
         )
         .route("/transaction/{uuid}", get(route_get_transaction_by_uuid))
+        .route("/edit_transaction", post(route_edit_transaction))
+        .route("/remove_transaction", post(route_remove_transaction))
         .route("/signup", post(route_signup))
         .route("/login", post(route_login))
         .route("/has_family", get(route_get_has_family))
@@ -29,5 +31,4 @@ pub(crate) fn api_routes() -> Router<AppState> {
         .route("/goals", get(route_get_goals).post(route_set_goal))
         .route("/transactions_many", post(route_add_many_transactions))
         .route("/export", get(route_export))
-        .route("/edit_transaction", post(route_edit_transaction))
 }

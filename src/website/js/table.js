@@ -40,9 +40,8 @@ addTransactionBtn.onclick = () => {
                 new Date();
             document.getElementById("close-transaction").onclick = () => {
                 var els = document.getElementsByClassName(
-                    "added-by-add-transaction-btn"
+                    "added-by-transaction"
                 );
-                console.log(els);
 
                 while (els[0]) {
                     els[0].parentNode.removeChild(els[0]);
@@ -72,7 +71,6 @@ function editTransaction(event) {
                 var els = document.getElementsByClassName(
                     "added-by-transaction"
                 );
-                console.log(els);
 
                 while (els[0]) {
                     els[0].parentNode.removeChild(els[0]);

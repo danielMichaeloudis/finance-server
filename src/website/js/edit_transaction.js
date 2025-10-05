@@ -41,15 +41,29 @@ document.getElementById("submit-transaction").onclick = () => {
             authorization: "Bearer " + getCookie("token"),
             "Content-Type": "application/json",
         },
-    }).then(
-        (res) => {
-            document.getElementById("transaction-form").reset();
-            const itemsDiv = document.getElementById("transaction-items");
-            itemsDiv.innerHTML = "";
+    })
+        .then(() => {
             location.reload();
-        },
-        (res) => {
+        })
+        .catch((res) => {
             console.log("Failed to add transaction: ", res);
-        }
-    );
+        });
+};
+
+document.getElementById("remove-transaction").onclick = () => {
+    const uuid = document.getElementById("transaction-uuid").value;
+    fetch("/api/remove_transaction", {
+        method: "POST",
+        body: JSON.stringify(uuid),
+        headers: {
+            authorization: "Bearer " + getCookie("token"),
+            "Content-Type": "application/json",
+        },
+    })
+        .then(() => {
+            location.reload();
+        })
+        .catch(() => {
+            console.error("Failed to delete transaction");
+        });
 };

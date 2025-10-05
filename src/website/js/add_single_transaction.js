@@ -39,15 +39,11 @@ document.getElementById("submit-transaction").onclick = () => {
             authorization: "Bearer " + getCookie("token"),
             "Content-Type": "application/json",
         },
-    }).then(
-        (res) => {
-            document.getElementById("transaction-form").reset();
-            const itemsDiv = document.getElementById("transaction-items");
-            itemsDiv.innerHTML = "";
+    })
+        .then(() => {
             location.reload();
-        },
-        (res) => {
+        })
+        .catch((res) => {
             console.log("Failed to add transaction: ", res);
-        }
-    );
+        });
 };

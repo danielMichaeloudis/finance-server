@@ -13,7 +13,7 @@ use crate::{
     utils::{
         encrypt_add_transaction, encrypt_add_transactions, encrypt_edit_transaction,
         get_all_transactions, get_goals, get_uuid_from_token, internal_server_error,
-        process_vendor_data, set_goal, JWTKeyProvider, Store,
+        process_vendor_data, remove_transaction, set_goal, JWTKeyProvider, Store,
     },
 };
 
@@ -24,14 +24,6 @@ pub async fn route_add_transaction(
     Json(transaction): Json<Transaction>,
 ) -> Result<Json<Vec<Transaction>>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
-    let transaction = match transaction.uuid {
-        Some(_) => transaction,
-        None => {
-            let mut t = transaction;
-            t.uuid = Some(Uuid::new_v4());
-            t
-        }
-    };
     encrypt_add_transaction(&store, &user_uuid, transaction).await?;
     Ok(Json(
         get_all_transactions(&store, &user_uuid)
@@ -48,17 +40,6 @@ pub async fn route_add_many_transactions(
     Json(transactions): Json<Vec<Transaction>>,
 ) -> Result<Json<Vec<Transaction>>, (StatusCode, String)> {
     let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
-    let transactions = transactions
-        .into_iter()
-        .map(|transaction| match transaction.uuid {
-            Some(_) => transaction,
-            None => {
-                let mut t = transaction;
-                t.uuid = Some(Uuid::new_v4());
-                t
-            }
-        })
-        .collect();
     encrypt_add_transactions(&store, &user_uuid, transactions).await?;
     Ok(Json(
         get_all_transactions(&store, &user_uuid)
@@ -107,6 +88,16 @@ pub async fn route_edit_transaction(
             .into_values()
             .collect(),
     ))
+}
+
+pub async fn route_remove_transaction(
+    State(store): State<Store>,
+    State(jwt_key_provider): State<JWTKeyProvider>,
+    header_map: HeaderMap,
+    Json(uuid): Json<Uuid>,
+) -> Result<(), (StatusCode, String)> {
+    let user_uuid = get_uuid_from_token(&jwt_key_provider, &header_map).await?;
+    remove_transaction(&store, &user_uuid, &uuid).await
 }
 
 pub async fn route_get_vendors_data(

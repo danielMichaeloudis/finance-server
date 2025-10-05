@@ -104,29 +104,19 @@ impl Store {
         data: Vec<u8>,
     ) -> Result<Uuid, sqlx::Error> {
         let time = Utc::now().naive_utc();
-        let mut tx = self.pool.begin().await?;
-        println!("Deleting transaction");
-        query!("delete from user_data where uuid=$1", data_uuid)
-            .execute(&mut *tx)
-            .await?;
-        println!("Inserting new transaction");
-        let res = query_scalar!(
+        query_scalar!(
             r#"--sql
-                insert into user_data (user_uuid, encrypted_data, data_time) 
-                values ($1, $2, $3)
-                returning uuid;
-            
+            update user_data set encrypted_data=$1, data_time=$2
+            where uuid=$3 and user_uuid=$4;
         "#,
-            user_uuid,
             data,
-            time
+            time,
+            data_uuid,
+            user_uuid
         )
-        .fetch_one(&mut *tx)
+        .fetch_all(&self.pool)
         .await?;
-        tx.commit().await?;
-        println!("Committed. Uuid: {res:?}");
-
-        Ok(res)
+        Ok(*data_uuid)
     }
 
     pub async fn remove_user_data(

@@ -125,6 +125,7 @@ fn page_css() -> Css {
             border-style: solid;
             border-width: 1px;
             border-color: rgba(255, 255, 255, 0.23);
+            box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px;
         }
 
         .styled-button {
@@ -133,6 +134,7 @@ fn page_css() -> Css {
             border: none;
             border-radius: 4px;
             transition: background-color 0.4s ease;
+            box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px;
         }
 
         .styled-button:hover {
