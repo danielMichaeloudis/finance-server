@@ -49,7 +49,7 @@ impl Store {
         .map(|fam| fam.encryption_key)
     }
 
-    pub async fn get_username(&self, user_uuid: &Uuid) -> Result<String, sqlx::Error> {
+    pub async fn _get_username(&self, user_uuid: &Uuid) -> Result<String, sqlx::Error> {
         let res = query!(
             r#"--sql
             select username from users where user_uuid = $1

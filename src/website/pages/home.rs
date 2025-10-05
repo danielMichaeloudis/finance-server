@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use axum::extract::Query;
-use css_helper::Css;
 use maud::{html, Markup};
 use uuid::Uuid;
 

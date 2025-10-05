@@ -14,13 +14,12 @@ use axum::{
 };
 use css_helper::Css;
 use pages::{login_page, page};
-use uuid::Uuid;
 
 use crate::{
     api_bridge::ApiBridge,
-    models::{Item, Transaction},
+    models::Item,
     website::{
-        components::{add_transaction, close_svg, edit_transaction, item_row},
+        components::{add_transaction, edit_transaction, item_row},
         js::get_js_file,
         pages::{authorised_page, home_page, signup_page, table_page},
     },
