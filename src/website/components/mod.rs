@@ -1,11 +1,14 @@
 mod adding_pages;
+mod edit_transaction;
 mod filter;
 mod header;
 mod navigation;
 mod svgs;
 mod transaction;
-pub use adding_pages::{add_transaction, adding_pages_css};
+pub use adding_pages::add_transaction;
+pub use edit_transaction::edit_transaction;
 pub use filter::{filter_section, filter_transactions};
 pub use header::header;
 pub use navigation::navigation_bar;
 pub use svgs::*;
+pub use transaction::item_row;

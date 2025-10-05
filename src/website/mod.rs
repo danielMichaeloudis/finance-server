@@ -7,18 +7,19 @@ use std::fs;
 use axum::{
     body::Body,
     extract::Request,
-    http::{Response, StatusCode},
+    http::{HeaderMap, Response, StatusCode},
     middleware::{self, Next},
-    routing::get,
-    Router,
+    routing::{get, post},
+    Json, Router,
 };
 use css_helper::Css;
 use pages::{login_page, page};
 
 use crate::{
     api_bridge::ApiBridge,
+    models::Item,
     website::{
-        components::{add_transaction, close_svg},
+        components::{add_transaction, edit_transaction, item_row},
         js::get_js_file,
         pages::{authorised_page, home_page, signup_page, table_page},
     },
@@ -30,7 +31,6 @@ pub(crate) fn website_routes() -> Router<AppState> {
         .route("/login", get(async || page(login_page())))
         .route("/signup", get(async || page(signup_page())))
         .route_layer(middleware::from_fn(check_logged_in));
-    let svg_routes = Router::new().route("/close.svg", get(async || close_svg()));
 
     Router::new()
         .route(
@@ -49,9 +49,13 @@ pub(crate) fn website_routes() -> Router<AppState> {
             "/components/add_single_transaction",
             get(async || add_transaction()),
         )
+        .route("/components/edit_transaction", post(edit_transaction))
+        .route(
+            "/components/item-row",
+            post(async |item: Json<Option<Item>>| item_row(item)),
+        )
         .route_layer(middleware::from_fn(auth))
         .merge(login_routes)
-        .merge(svg_routes)
 }
 
 pub(crate) fn js_routes() -> Router<AppState> {
@@ -113,7 +117,11 @@ async fn check_logged_in(req: Request, next: Next) -> Result<Response<Body>, (St
 }
 
 fn get_cookie(req: &Request, cookie: &str) -> Option<String> {
-    let cookies: Vec<&str> = match req.headers().get("cookie") {
+    get_cookie_from_headers(req.headers(), cookie)
+}
+
+fn get_cookie_from_headers(headers: &HeaderMap, cookie: &str) -> Option<String> {
+    let cookies: Vec<&str> = match headers.get("cookie") {
         Some(cookie) => match cookie.to_str() {
             Ok(cookie) => cookie,
             Err(_) => return None,

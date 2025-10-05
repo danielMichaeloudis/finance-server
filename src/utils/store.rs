@@ -49,7 +49,7 @@ impl Store {
         .map(|fam| fam.encryption_key)
     }
 
-    pub async fn get_username(&self, user_uuid: &Uuid) -> Result<String, sqlx::Error> {
+    pub async fn _get_username(&self, user_uuid: &Uuid) -> Result<String, sqlx::Error> {
         let res = query!(
             r#"--sql
             select username from users where user_uuid = $1
@@ -70,20 +70,6 @@ impl Store {
             r#"--sql
             select uuid, user_uuid "owner_uuid", encrypted_data, data_time from public.user_data where user_uuid = $1
         "#, user_uuid
-        )
-        .fetch_all(&self.pool)
-        .await
-    }
-
-    pub async fn get_family_data(
-        &self,
-        family_uuid: &Uuid,
-    ) -> Result<Vec<EncryptedDataReturn>, sqlx::Error> {
-        query_as!(
-            EncryptedDataReturn,
-            r#"--sql
-            select uuid, family_uuid "owner_uuid", encrypted_data, data_time from public.family_data where family_uuid = $1
-        "#, family_uuid
         )
         .fetch_all(&self.pool)
         .await
@@ -111,26 +97,26 @@ impl Store {
         Ok(res)
     }
 
-    pub async fn add_family_data(
+    pub async fn edit_user_data(
         &self,
-        family_uuid: &Uuid,
-        transaction_data: Vec<u8>,
+        user_uuid: &Uuid,
+        data_uuid: &Uuid,
+        data: Vec<u8>,
     ) -> Result<Uuid, sqlx::Error> {
         let time = Utc::now().naive_utc();
-        let res = query_scalar!(
+        query_scalar!(
             r#"--sql
-                insert into family_data (family_uuid, encrypted_data, data_time) 
-                values ($1, $2, $3)
-                returning family_uuid
-            
+            update user_data set encrypted_data=$1, data_time=$2
+            where uuid=$3 and user_uuid=$4;
         "#,
-            family_uuid,
-            transaction_data,
-            time
+            data,
+            time,
+            data_uuid,
+            user_uuid
         )
-        .fetch_one(&self.pool)
+        .fetch_all(&self.pool)
         .await?;
-        Ok(res)
+        Ok(*data_uuid)
     }
 
     pub async fn remove_user_data(
@@ -145,24 +131,6 @@ impl Store {
         "#,
             data_uuid,
             user_uuid
-        )
-        .execute(&self.pool)
-        .await?;
-        Ok(())
-    }
-
-    pub async fn remove_family_data(
-        &self,
-        family_uuid: &Uuid,
-        data_uuid: &Uuid,
-    ) -> Result<(), sqlx::Error> {
-        let _res = query!(
-            r#"--sql
-        delete from family_data where
-        uuid = $1 and family_uuid = $2
-        "#,
-            data_uuid,
-            family_uuid
         )
         .execute(&self.pool)
         .await?;

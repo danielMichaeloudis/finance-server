@@ -3,6 +3,8 @@ mod login;
 mod signup;
 mod table;
 
+use std::collections::HashMap;
+
 use axum::extract::{Query, Request};
 use chrono::NaiveDate;
 pub use home::home_page;
@@ -11,6 +13,7 @@ use maud::{html, Markup, DOCTYPE};
 use serde::{Deserialize, Serialize};
 pub use signup::signup_page;
 pub use table::table_page;
+use uuid::Uuid;
 
 use crate::{
     api_bridge::ApiBridge,
@@ -32,7 +35,7 @@ pub struct FilterParams {
 }
 
 pub async fn authorised_page(
-    content: impl Fn(&[Transaction], &Query<FilterParams>) -> Markup,
+    content: impl Fn(&HashMap<Uuid, Transaction>, &Query<FilterParams>) -> Markup,
     req: Request,
 ) -> Markup {
     let query_params = Query::<FilterParams>::try_from_uri(req.uri()).unwrap();
@@ -50,14 +53,15 @@ pub async fn authorised_page(
         Err(_) => return html! {},
     };
 
-    let transaction_list: Vec<Transaction> = filter_transactions(transaction_list, &query_params);
+    let transaction_list: HashMap<Uuid, Transaction> =
+        filter_transactions(transaction_list, &query_params);
 
     let total_in = transaction_list
         .iter()
-        .fold(0.0, |acc, t| acc + 0.0f64.max(t.cost));
+        .fold(0.0, |acc, (_, t)| acc + 0.0f64.max(t.cost));
     let total_out = match transaction_list
         .iter()
-        .fold(0.0, |acc, t| acc + -0.0f64.min(t.cost))
+        .fold(0.0, |acc, (_, t)| acc + -0.0f64.min(t.cost))
     {
         0.0 => 0.0,
         t => -t,
@@ -121,6 +125,7 @@ fn page_css() -> Css {
             border-style: solid;
             border-width: 1px;
             border-color: rgba(255, 255, 255, 0.23);
+            box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px;
         }
 
         .styled-button {
@@ -129,6 +134,7 @@ fn page_css() -> Css {
             border: none;
             border-radius: 4px;
             transition: background-color 0.4s ease;
+            box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 4px -1px, rgba(0, 0, 0, 0.14) 0px 4px 5px 0px, rgba(0, 0, 0, 0.12) 0px 1px 10px 0px;
         }
 
         .styled-button:hover {

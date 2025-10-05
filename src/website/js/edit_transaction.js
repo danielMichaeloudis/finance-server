@@ -1,4 +1,5 @@
 document.getElementById("submit-transaction").onclick = () => {
+    const uuid = document.getElementById("transaction-uuid");
     const vendor = document.getElementById("transaction-vendor");
     const buyer = document.getElementById("transaction-buyer");
     const cost = document.getElementById("transaction-cost");
@@ -6,6 +7,7 @@ document.getElementById("submit-transaction").onclick = () => {
     const date = document.getElementById("transaction-date");
 
     let transaction = {};
+    transaction["uuid"] = uuid.value;
     transaction["vendor"] = vendor.value;
     transaction["buyer"] = buyer.value;
     transaction["cost"] = parseFloat(cost.value);
@@ -32,9 +34,9 @@ document.getElementById("submit-transaction").onclick = () => {
 
     transaction["items"] = items;
 
-    fetch("/api/transactions_many", {
+    fetch("/api/edit_transaction", {
         method: "POST",
-        body: JSON.stringify([transaction]),
+        body: JSON.stringify(transaction),
         headers: {
             authorization: "Bearer " + getCookie("token"),
             "Content-Type": "application/json",
@@ -45,5 +47,23 @@ document.getElementById("submit-transaction").onclick = () => {
         })
         .catch((res) => {
             console.log("Failed to add transaction: ", res);
+        });
+};
+
+document.getElementById("remove-transaction").onclick = () => {
+    const uuid = document.getElementById("transaction-uuid").value;
+    fetch("/api/remove_transaction", {
+        method: "POST",
+        body: JSON.stringify(uuid),
+        headers: {
+            authorization: "Bearer " + getCookie("token"),
+            "Content-Type": "application/json",
+        },
+    })
+        .then(() => {
+            location.reload();
+        })
+        .catch(() => {
+            console.error("Failed to delete transaction");
         });
 };

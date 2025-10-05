@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "--sql\n            update user_data set encrypted_data=$1, data_time=$2\n            where uuid=$3 and user_uuid=$4;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Timestamp",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f2d19005c67d959cf205b02bfc87b6546711ccf182aa4e28151407eca37b7dca"
+}

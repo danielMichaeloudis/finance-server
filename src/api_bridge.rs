@@ -1,7 +1,10 @@
+use std::collections::HashMap;
+
 use axum::{
-    extract::State,
+    extract::{Path, State},
     http::{header::AUTHORIZATION, HeaderMap, StatusCode},
 };
+use uuid::Uuid;
 
 use crate::{
     api::*,
@@ -32,10 +35,23 @@ impl ApiBridge {
     pub async fn get_transactions(
         self,
         token: &str,
-    ) -> Result<Vec<Transaction>, (StatusCode, String)> {
+    ) -> Result<HashMap<Uuid, Transaction>, (StatusCode, String)> {
         let header_map = Self::get_header_map(token);
         let t = route_get_all_transactions(self.state_store, self.state_jwt, header_map).await?;
         Ok(t.0)
+    }
+
+    pub async fn get_transaction_by_uuid(
+        self,
+        token: &str,
+        uuid: Uuid,
+    ) -> Result<Transaction, (StatusCode, String)> {
+        let header_map = Self::get_header_map(token);
+        Ok(
+            route_get_transaction_by_uuid(self.state_store, self.state_jwt, header_map, Path(uuid))
+                .await?
+                .0,
+        )
     }
 
     fn get_header_map(token: &str) -> HeaderMap {

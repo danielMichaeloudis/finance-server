@@ -3,7 +3,7 @@ default-run = "ledgerly"
 edition = "2021"
 name = "ledgerly"
 repository = "https://github.com/danielMichaeloudis/ledgerly"
-version = "0.3.2"
+version = "0.4.0"
 
 [dependencies]
 aes-gcm = "0.10.3"
@@ -12,7 +12,6 @@ axum = {version = "0.8.6", features = ["macros"]}
 base64 = "0.22.1"
 chrono = {version = "0.4.42", features = ["serde"]}
 css_helper = {path = "./src/website/css_crates/css_helper"}
-css_macro = {path = "./src/website/css_crates/css_macro"}
 dotenvy = "0.15.7"
 jwt-simple = {version = "0.12.12", default-features = false, features = ["pure-rust"]}
 maud = {version = "0.27.0", features = ["axum"]}

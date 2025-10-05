@@ -19,7 +19,7 @@ function deleteCookie(cname) {
         cname + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
 
-function addHTML(html, idToRemove = null) {
+function addHTML(html, idToRemove = null, addTo = document.body) {
     if (idToRemove != null) {
         var els = document.getElementsByClassName("added-by-" + idToRemove);
 
@@ -66,5 +66,5 @@ function addHTML(html, idToRemove = null) {
     if (idToRemove != null) {
         temp.firstElementChild.classList.add("added-by-" + idToRemove);
     }
-    document.body.appendChild(temp.firstElementChild);
+    addTo.appendChild(temp.firstElementChild);
 }

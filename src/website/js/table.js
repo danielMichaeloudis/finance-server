@@ -28,5 +28,53 @@ addContainer.onmouseleave = (event) => {
     event.currentTarget.classList.remove("open");
 };
 
-//default date picker to now
-document.getElementById("transaction-date").valueAsDate = new Date();
+const addTransactionBtn = document.getElementById("add-transaction-btn");
+
+addTransactionBtn.onclick = () => {
+    fetch("/components/add_single_transaction")
+        .then((res) => res.text())
+        .then((html) => {
+            addHTML(html, "transaction");
+            //default date picker to now
+            document.getElementById("transaction-date").valueAsDate =
+                new Date();
+            document.getElementById("close-transaction").onclick = () => {
+                var els = document.getElementsByClassName(
+                    "added-by-transaction"
+                );
+
+                while (els[0]) {
+                    els[0].parentNode.removeChild(els[0]);
+                }
+            };
+            document
+                .getElementById("add-single-transaction")
+                .classList.add("shown");
+        });
+};
+
+function editTransaction(event) {
+    event.preventDefault();
+    const row = event.currentTarget.closest(".transaction-row");
+    fetch("/components/edit_transaction", {
+        method: "POST",
+        body: JSON.stringify(row.getElementsByClassName("uuid")[0].innerText),
+        headers: {
+            authorization: "Bearer " + getCookie("token"),
+            "Content-Type": "application/json",
+        },
+    })
+        .then((res) => res.text())
+        .then((html) => {
+            addHTML(html, "transaction");
+            document.getElementById("close-transaction").onclick = () => {
+                var els = document.getElementsByClassName(
+                    "added-by-transaction"
+                );
+
+                while (els[0]) {
+                    els[0].parentNode.removeChild(els[0]);
+                }
+            };
+        });
+}
