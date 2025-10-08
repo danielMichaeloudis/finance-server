@@ -7,7 +7,8 @@ function updateCost() {
         totalCost += parseFloat(price.value);
     });
     const transactionCost = document.getElementById("transaction-cost");
-    transactionCost.value = totalCost;
+    transactionCost.value =
+        Math.round((totalCost + Number.EPSILON) * 100) / 100;
     if (prices.length > 0) {
         transactionCost.readOnly = true;
     } else {
@@ -28,7 +29,12 @@ function addItem() {
     })
         .then((res) => res.text())
         .then((html) => {
-            addHTML(html, null, document.getElementById("transaction-items"));
+            let newRow = addHTML(
+                html,
+                null,
+                document.getElementById("transaction-items")
+            );
+            newRow.childNodes[1].focus();
         });
 }
 document

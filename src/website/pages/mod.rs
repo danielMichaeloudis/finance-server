@@ -56,19 +56,16 @@ pub async fn authorised_page(
     let transaction_list: HashMap<Uuid, Transaction> =
         filter_transactions(transaction_list, &query_params);
 
-    let total_in = transaction_list
+    let total_out = transaction_list
         .iter()
         .fold(0.0, |acc, (_, t)| acc + 0.0f64.max(t.cost));
-    let total_out = match transaction_list
+    let total_in = transaction_list
         .iter()
-        .fold(0.0, |acc, (_, t)| acc + -0.0f64.min(t.cost))
-    {
-        0.0 => 0.0,
-        t => -t,
-    };
-    let total = match total_in - total_out {
-        0.0 => 0.0,
-        t => -t,
+        .fold(0.0, |acc, (_, t)| acc + (-0.0f64).min(t.cost));
+
+    let total = match total_out + total_in {
+        -0.0 => 0.0,
+        t => t,
     };
 
     let wrapped = html! {
@@ -78,8 +75,8 @@ pub async fn authorised_page(
         (header())
         #"spending-header" ."bg-1" {
             h1 {"Total Spent: " h1 #total {(format!("£{total:0.2}"))}} br;
-            h1 {"Total In: " h1 #incomming {(format!("£{total_in:0.2}"))}} br;
-            h1 {"Total Out: " h1 #outgoing {(format!("£{:0.2}", total_out))}} br;
+            h1 {"Total Out: " h1 #outgoing {(format!("£{total_out:0.2}"))}} br;
+            h1 {"Total In: " h1 #incomming {(format!("£{:0.2}", total_in.abs()))}} br;
         }
         (navigation_bar())
         (content(&transaction_list, &query_params))
