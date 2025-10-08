@@ -66,5 +66,5 @@ function addHTML(html, idToRemove = null, addTo = document.body) {
     if (idToRemove != null) {
         temp.firstElementChild.classList.add("added-by-" + idToRemove);
     }
-    addTo.appendChild(temp.firstElementChild);
+    return addTo.appendChild(temp.firstElementChild);
 }
