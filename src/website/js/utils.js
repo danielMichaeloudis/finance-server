@@ -1,3 +1,9 @@
+fetch("/version").then((res) => {
+    res.text().then((version) => {
+        console.log(version);
+    });
+});
+
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);

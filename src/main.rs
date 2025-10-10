@@ -14,6 +14,7 @@ use axum::{
     Json, Router,
 };
 use serde::Serialize;
+use serde_json::json;
 use sqlx::{migrate::Migrator, postgres::PgPoolOptions, Connection, PgConnection, Pool, Postgres};
 use utils::AppState;
 use website::website_routes;
@@ -32,6 +33,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let router = Router::new()
         .route("/ping", get(ping))
+        .route("/version", get(version))
         .nest("/api", api_routes())
         .merge(website_routes())
         .merge(js_routes())
@@ -89,4 +91,8 @@ async fn ping() -> Result<Json<PingRes>, ()> {
     Ok(Json(PingRes {
         server_name: "ledgerly".to_string(),
     }))
+}
+
+async fn version() -> String {
+    format!("{}: {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"))
 }
